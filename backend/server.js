@@ -1,38 +1,48 @@
-const http = require("http");
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const { Server } = require("socket.io");
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const connectDB = require('./config/database');
-const authRoutes = require('./routes/auth');
+import express from "express";
+import { createServer } from "http";
+import mongoose from "mongoose";
+import cors from "cors";
+import cookieParser from 'cookie-parser';
+import connectToSockets from './config/sockets.js';
+import authRoutes from "./routes/auth.js"
+
+const PORT = process.env.PORT || 5000;
+const URL = process.env.MONGODB_URI;
 
 const app = express();
-const port = process.env.PORT || 5000;
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true
-  }
-});
-
-// Connect to database
-connectDB();
+const server = createServer(app);
+const io = connectToSockets(server);
 
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  credentials: true
-}));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["*"],
+  })
+);
+app.use(express.json({limit: "40KB"}));
+app.use(express.urlencoded({limit: "40kb", extended: true}));
 app.use(cookieParser());
-
-
 app.use('/api/auth', authRoutes);
+
+mongoose
+  .connect(URL)
+  .then(() => {
+    console.log("Connected to Database");
+
+    server.listen(PORT, () => {
+      console.log(`server is listening on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
+
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -42,20 +52,6 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
-// Socket.io connection handling
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-  
-  socket.on("user-message", (message) => {
-    io.emit("message", message);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
-
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.resolve("../frontend/dist")));
@@ -89,9 +85,4 @@ app.use((err, req, res, next) => {
     success: false,
     message: 'Something went wrong!'
   });
-});
-
-server.listen(port, () => {
-  console.log(`Server started at port: ${port}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

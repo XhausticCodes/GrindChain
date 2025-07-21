@@ -1,17 +1,17 @@
-const validateEmail = (email) => {
+export const validateEmail = (email) => {
   const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
   return emailRegex.test(email);
 };
 
-const validatePassword = (password) => {
+export const validatePassword = (password) => {
   return password && password.length >= 6;
 };
 
-const validateUsername = (username) => {
+export const validateUsername = (username) => {
   return username && username.length >= 3 && username.length <= 30;
 };
 
-const validateSignupData = (data) => {
+export const validateSignupData = (data) => {
   const errors = [];
   
   if (!data.username) {
@@ -38,7 +38,7 @@ const validateSignupData = (data) => {
   };
 };
 
-const validateLoginData = (data) => {
+export const validateLoginData = (data) => {
   const errors = [];
   
   if (!data.email) {
@@ -55,12 +55,4 @@ const validateLoginData = (data) => {
     isValid: errors.length === 0,
     errors
   };
-};
-
-module.exports = {
-  validateEmail,
-  validatePassword,
-  validateUsername,
-  validateSignupData,
-  validateLoginData
 };

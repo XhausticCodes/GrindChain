@@ -1,11 +1,12 @@
-import React from 'react'
+import React from 'react';
+import { AuthProvider } from './contexts/AuthContext';
 
 const App = () => {
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <AuthProvider>
+      {/* Your app components */}
+    </AuthProvider>
+  );
+};
 
-export default App
+export default App;

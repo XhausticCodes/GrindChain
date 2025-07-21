@@ -4,24 +4,55 @@ import { genSalt, hash, compare } from 'bcrypt';
 const userSchema = new Schema({
   username: {
     type: String,
-    required: [true, 'Username is required'],
+    required: true,
     unique: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters long'],
-    maxlength: [30, 'Username cannot exceed 30 characters']
+    minlength: 3,
+    maxlength: 30
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters long']
+    required: true,
+    minlength: 6
   },
+  avatar: {
+    type: String,
+    default: null
+  },
+  description: {
+    type: String,
+    maxlength: 500,
+    default: ''
+  },
+  streak: {
+    type: Number,
+    default: 0
+  },
+  lastCheckinDate: {
+    type: Date,
+    default: null
+  },
+  groups: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Group' 
+  }],
+  checkinHistory: [{
+    date: {
+      type: Date,
+      required: true
+    },
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Group'
+    }
+  }],
   isActive: {
     type: Boolean,
     default: true
@@ -30,29 +61,14 @@ const userSchema = new Schema({
   timestamps: true
 });
 
-
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await genSalt(12);
-    this.password = await hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
 });
-
 
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await compare(candidatePassword, this.password);
 };
 
-
-userSchema.methods.toJSON = function() {
-  const userObject = this.toObject();
-  delete userObject.password;
-  return userObject;
-};
-
-export default model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);

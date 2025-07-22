@@ -1,21 +1,26 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+console.log('Environment variables loaded:');
+console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Present' : 'Missing');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Present' : 'Missing');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Present' : 'Missing');
+
 import express from "express";
 import { createServer } from "http";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 import connectToSockets from './config/sockets.js';
-import authRoutes from "./routes/auth.js"
+import authRoutes from "./routes/auth.js";
+import geminiRoutes from "./routes/gemini.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const URL = process.env.MONGODB_URI;
 
 const app = express();
 const server = createServer(app);
 const io = connectToSockets(server);
-
 
 app.use(
   cors({
@@ -25,9 +30,11 @@ app.use(
     allowedHeaders: ["*"],
   })
 );
+
 app.use(express.json({limit: "40KB"}));
 app.use(express.urlencoded({limit: "40kb", extended: true}));
 app.use(cookieParser());
+
 app.use('/api/auth', authRoutes);
 
 
@@ -43,43 +50,53 @@ mongoose
   .catch((err) => {
     console.error("Database connection failed:", err);
   });
+app.use('/api/auth', authRoutes);
+app.use('/api/ai', geminiRoutes);
 
-
-// Health check route
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    services: {
+      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured'
+    }
   });
 });
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.resolve("../frontend/dist")));
-  
-  // Catch-all handler for frontend routes
-  app.get("*", (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ message: 'API route not found' });
+app.get("/", (req, res) => {
+  res.json({
+    message: "GrindChain Backend API",
+    version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth",
+      ai: "/api/ai",
+      health: "/api/health"
     }
-    return res.sendFile(path.resolve("../frontend/dist/index.html"));
   });
-} else {
-  // Development route
-  app.get("/", (req, res) => {
-    res.json({
-      message: "GrindChain Backend API",
-      version: "1.0.0",
-      endpoints: {
-        auth: "/api/auth",
-        health: "/api/health"
-      }
-    });
-  });
-}
+});
 
-// Error handling middleware
+console.log('Database URL:', URL ? 'Configured' : 'Missing');
+console.log('Gemini API Key:', process.env.GEMINI_API_KEY ? 'Configured' : 'Missing');
+
+mongoose
+  .connect(URL)
+  .then(() => {
+    console.log("Connected to Database");
+
+    server.listen(PORT, () => {
+      console.log(`Server is listening on PORT ${PORT}`);
+      console.log(`API Endpoints:`);
+      console.log(`  - Auth: /api/auth`);
+      console.log(`  - AI Roadmap: POST /api/ai/roadmap`);
+      console.log(`  - Health Check: GET /api/health`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({

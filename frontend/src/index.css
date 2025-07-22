@@ -7,6 +7,7 @@
     --color-secondaryAccent: #8C5C3A;
     --color-textSecondary: #94a3b8;
     --font-sans: "Inter", sans-serif;
+
   }
 
 .blur-theme {
@@ -22,3 +23,6 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+  }
+

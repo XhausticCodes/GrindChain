@@ -8,20 +8,34 @@ const team = [
 ];
 
 const TeamSummary = () => (
+
   <div className="blur-theme p-6 flex flex-col justify-between shadow-md rounded-tl-3xl h-[100px]">
+
+  <div className="bg-[#1e1e2f] p-6 flex flex-col justify-between shadow-md rounded-tl-3xl">
+
     <div className="flex items-center mb-2">
       <div className="flex -space-x-4">
         {team.map((member, idx) => (
           <img
+
             key={idx}
             src={member.img}
             alt={member.name}
             className="w-10 h-10 rounded-full border-2 border-transparent object-cover"
+
+            key={idx} 
+            src={member.img}
+            alt={member.name}
+            className="w-10 h-10 rounded-full border-2 border-[#1e1e2f] object-cover"
+
             style={{ zIndex: 10 - idx }}
           />
         ))}
         <span
+
           className="w-10 h-10 flex items-center justify-center rounded-full bg-[#9333ea] text-white text-sm font-bold border-2 border-transparent"
+
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-[#9333ea] text-white text-sm font-bold border-2 border-[#1e1e2f]"
           style={{ zIndex: 6 }}
         >
           +12

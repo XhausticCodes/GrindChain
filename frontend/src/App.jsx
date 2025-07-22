@@ -13,6 +13,17 @@ const App = () => {
   //     socketAPI.disconnect();
   //   };
   // }, []);
+import socketAPI from "./API/socketApi";
+
+const App = () => {
+  useEffect(() => {
+    socketAPI.on("connect", () => {
+      console.log("✅ Connected to server:", socketAPI.id);
+    });
+    return () => {
+      socketAPI.disconnect();
+    };
+  }, []);
   return (
     <div className="bg-black text-white min-h-screen font-sans">
       <BrowserRouter>
@@ -22,4 +33,5 @@ const App = () => {
   );
 };
 
+export default App;
 export default App;

@@ -16,4 +16,7 @@ const LoginContent = () => {
   );
 };
 
+
+export default LoginContent;
+
 export default LoginContent;

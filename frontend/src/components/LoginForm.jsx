@@ -1,10 +1,16 @@
 import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const onLogin = async ({ email, password }) => {
@@ -13,15 +19,36 @@ const LoginForm = () => {
     return new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
+  const [errors, setErrors] = useState([]);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     setError("");
     try {
       await onLogin({ email, password });
       // Handle success (redirect, show message, etc.)
     } catch (err) {
       setError("Login failed. Please try again.");
+
+    setErrors([]);
+
+    try {
+      const result = await login(email, password);
+      
+      if (result.success) {
+        navigate("/dashboard");
+      } else {
+        setErrors(result.errors || [result.message]);
+      }
+    } catch (err) {
+      setErrors(["Login failed. Please try again."]);
+
     } finally {
       setLoading(false);
     }
@@ -29,6 +56,17 @@ const LoginForm = () => {
 
   return (
     <form className="flex flex-col w-full gap-4" onSubmit={handleSubmit}>
+
+      {errors.length > 0 && (
+        <div className="mb-4 p-3 bg-red-500/20 border border-red-400/50 text-red-200 rounded-lg backdrop-blur-sm">
+          <ul className="list-none">
+            {errors.map((error, index) => (
+              <li key={index} className="text-sm">{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
@@ -82,6 +120,7 @@ const LoginForm = () => {
         />
       </div>
       {error && <div className="text-red-400 text-sm text-center">{error}</div>}
+
       <button
         type="submit"
         className="w-full py-3 mt-2 font-bold text-white bg-gradient-to-r from-amber-500 to-yellow-600 rounded-lg shadow-md hover:from-amber-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all disabled:opacity-60"
@@ -101,4 +140,7 @@ const LoginForm = () => {
   );
 };
 
+
 export default LoginForm;
+export default LoginForm;
+

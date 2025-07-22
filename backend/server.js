@@ -36,21 +36,6 @@ app.use(express.urlencoded({limit: "40kb", extended: true}));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
-
-
-mongoose
-  .connect(URL)
-  .then(() => {
-    console.log("Connected to Database");
-
-    server.listen(PORT, () => {
-      console.log(`server is listening on PORT ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Database connection failed:", err);
-  });
-app.use('/api/auth', authRoutes);
 app.use('/api/ai', geminiRoutes);
 
 app.get('/api/health', (req, res) => {
@@ -77,9 +62,18 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Something went wrong!'
+  });
+});
+
 console.log('Database URL:', URL ? 'Configured' : 'Missing');
 console.log('Gemini API Key:', process.env.GEMINI_API_KEY ? 'Configured' : 'Missing');
 
+// Single database connection and server start
 mongoose
   .connect(URL)
   .then(() => {
@@ -96,11 +90,3 @@ mongoose
   .catch((err) => {
     console.error("Database connection failed:", err);
   });
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Something went wrong!'
-  });
-});

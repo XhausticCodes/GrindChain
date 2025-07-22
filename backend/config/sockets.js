@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import User from "../models/User";
+import User from "../models/User.js";
 
 const connectToSockets = (server) => {
   const io = new Server(server, {
@@ -39,7 +39,7 @@ const connectToSockets = (server) => {
           });
         }
       } catch (e) {
-        console.error(err);
+        console.error(e);
         socket.emit("task-update-error", {
           error: "Server error while updating task",
         });

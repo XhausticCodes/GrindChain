@@ -1,6 +1,12 @@
+
+const Topbar = () => {
+  return (
+    <header className="blur-theme flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
+
 const TopBar = ({ user, onLogout }) => {
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
+
       <input
         type="text"
         placeholder="Search..."
@@ -22,10 +28,12 @@ const TopBar = ({ user, onLogout }) => {
             Logout
           </button>
         </div>
+
         <div className="w-8 h-8 bg-white rounded-full" />
       </div>
     </header>
   );
 };
 
+export default Topbar;
 export default TopBar;

@@ -1,3 +1,9 @@
+const WelcomeBanner = () => {
+  return (
+    <div className="w-2/3 flex items-center justify-between bg-gradient-to-r from-accent to-secondaryAccent p-6 rounded-xl">
+      <div>
+        <h2 className="text-xl font-semibold">Welcome Back, UserName!</h2>
+
 const WelcomeBanner = ({ user }) => {
   return (
     <div className="w-2/3 flex items-center justify-between bg-gradient-to-r from-accent to-secondaryAccent p-6 rounded-xl">
@@ -25,5 +31,8 @@ const WelcomeBanner = ({ user }) => {
     </div>
   );
 };
+
+
+export default WelcomeBanner;
 
 export default WelcomeBanner;

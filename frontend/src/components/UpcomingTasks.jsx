@@ -8,7 +8,10 @@ const tasks = [
 ];
 
 const UpcomingTasks = () => (
+  <div className="blur-theme rounded-[12px] p-6 shadow-md">
+
   <div className="bg-[#1e1e2f] rounded-[12px] p-6 shadow-md">
+
     <h3 className="text-lg font-bold text-white mb-4">Upcoming Tasks</h3>
     <ul className="space-y-3">
       {tasks.map((task, idx) => (

@@ -1,3 +1,5 @@
+import React from "react";
+import { useAuth } from "../contexts/AuthContext";
 import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import WelcomeBanner from "../components/WelcomeBanner";
@@ -6,21 +8,25 @@ import ProgressChart from "../components/ProgressChart";
 import UpcomingTasks from "../components/UpcomingTasks";
 import TeamSummary from "../components/TeamSummary";
 import Pricing from "../components/Pricing";
-// import CalendarPanel from "../components/CalendarPanel";
 
 const Dashboard = () => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <div className="flex gap-4">
       <div className="flex flex-col gap-3 justify-between">
-      <Sidebar />
-      <Pricing />
+        <Sidebar />
+        <Pricing />
       </div>
       
       <main className="flex-1 space-y-6 bg-[#000000] min-h-screen">
-        <TopBar />
+        <TopBar user={user} onLogout={handleLogout} />
         <div className="flex gap-6 flex-wrap">
-        <WelcomeBanner />
-        {/* <CalendarPanel /> */}
+          <WelcomeBanner user={user} />
           <StatCard
             title="In-progress Projects"
             value={6}

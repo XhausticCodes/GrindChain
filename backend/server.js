@@ -29,6 +29,7 @@ app.use(express.json({limit: "40KB"}));
 app.use(express.urlencoded({limit: "40kb", extended: true}));
 app.use(cookieParser());
 app.use('/api/auth', authRoutes);
+console.log(URL);
 
 mongoose
   .connect(URL)

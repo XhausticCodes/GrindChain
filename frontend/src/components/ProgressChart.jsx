@@ -26,7 +26,7 @@ const data = [
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1e1e2f] p-3 rounded-lg shadow text-[#f8fafc]">
+      <div className="blur-theme p-3 rounded-lg shadow text-[#f8fafc]">
         <div className="font-bold">{label}</div>
         <div>{payload[0].value} tasks</div>
       </div>
@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ProgressChart = () => (
-  <div className="bg-[#1e1e2f] rounded-[12px] p-6 shadow-md">
+  <div className="blur-theme rounded-[12px] p-6 shadow-md">
     <h3 className="text-lg font-bold text-white mb-4">Productivity Metrics</h3>
     <ResponsiveContainer width="100%" height={220}>
       <LineChart
@@ -44,7 +44,7 @@ const ProgressChart = () => (
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
         <XAxis dataKey="month" stroke="#94a3b8" />
-        <YAxis stroke="#94a3b8" domain={[0, 100]} /> 
+        <YAxis stroke="#94a3b8" domain={[0, 100]} />
         <Tooltip content={<CustomTooltip />} />
         <Line
           type="monotone"

@@ -1,6 +1,6 @@
 const Topbar = () => {
   return (
-    <header className="flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
+    <header className="blur-theme flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
       <input
         type="text"
         placeholder="Search..."

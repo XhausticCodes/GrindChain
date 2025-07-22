@@ -1,5 +1,6 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { genSalt, hash, compare } from 'bcrypt';
+import taskSchema from './taskSchema';
 
 const userSchema = new Schema({
   username: {
@@ -43,6 +44,7 @@ const userSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Group' 
   }],
+  tasks: [taskSchema],
   checkinHistory: [{
     date: {
       type: Date,

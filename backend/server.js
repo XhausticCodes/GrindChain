@@ -36,6 +36,21 @@ app.use(express.urlencoded({limit: "40kb", extended: true}));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
+
+
+mongoose
+  .connect(URL)
+  .then(() => {
+    console.log("Connected to Database");
+
+    server.listen(PORT, () => {
+      console.log(`server is listening on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
+app.use('/api/auth', authRoutes);
 app.use('/api/ai', geminiRoutes);
 
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { genSalt, hash, compare } from 'bcrypt';
-import taskSchema from './taskSchema';
+import taskSchema from './taskSchema.js';
 
 const userSchema = new Schema({
   username: {

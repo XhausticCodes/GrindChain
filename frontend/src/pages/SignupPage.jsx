@@ -3,10 +3,14 @@ import Particles from "../../public/Particles";
 import CurvedLoop from "../../public/CurvedLoop.jsx";
 import SignupContent from "../components/SignupContent.jsx";
 import LoginShowcase from "../components/LoginShowcase.jsx";
+import Footer from "../components/Footer.jsx";
 
 const SignupPage = () => {
   return (
-    <div className="relative flex flex-col min-h-screen w-screen overflow-hidden">
+    <div
+      className="relative flex flex-col min-h-screen w-screen overflow-hidden"
+      style={{ height: "100vh", minHeight: "100vh", maxHeight: "100vh" }}
+    >
       {/* Background image */}
       <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/05ebf61ff7cb0591b96a8e06bdb5de1e.jpg)]"></div>
       {/* Dark overlay */}
@@ -32,28 +36,16 @@ const SignupPage = () => {
         </div>
       </header>
       {/* Main content below header */}
-      <main className="relative z-10 flex flex-1 flex-col md:flex-row items-center justify-center w-full h-[60vh] py-8 md:py-0">
-        <div className="flex-1 flex items-center justify-center w-full h-[60vh] mb-8 md:mb-0">
+      <main className="relative z-10 flex flex-1 min-h-0 flex-col md:flex-row items-center justify-center w-full py-4 md:py-0 gap-2">
+        <div className="flex-1 flex items-center justify-center w-full h-full">
           <LoginShowcase />
         </div>
-        <div className="flex-1 flex items-center justify-center w-full h-[60vh]">
+        <div className="flex-1 flex items-center justify-center w-full h-full">
           <SignupContent />
         </div>
       </main>
       {/* Footer */}
-      <footer className="relative z-10 w-full py-4 bg-black/30 text-white/70 text-center text-sm flex flex-col md:flex-row items-center justify-center gap-4 border-t border-white/10">
-        <span>&copy; {new Date().getFullYear()} GrindChain</span>
-        <span className="hidden md:inline">|</span>
-        <a href="#" className="hover:underline">
-          About
-        </a>
-        <a href="#" className="hover:underline">
-          Contact
-        </a>
-        <a href="#" className="hover:underline">
-          Privacy
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 };

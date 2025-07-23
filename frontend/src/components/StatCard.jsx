@@ -24,7 +24,7 @@ const StatCard = ({ title, value, total, percent, color }) => {
       <div className="text-2xl font-extrabold text-white">
         {value}/{total}
       </div>
-      <div className="text-sm text-[#94a3b8]">Projects</div>
+      <div className="text-sm text-[#94a3b8]">Tasks</div>
     </div>
   );
 };

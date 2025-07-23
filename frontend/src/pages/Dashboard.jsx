@@ -19,14 +19,14 @@ const Dashboard = () => {
         </div>
         <div className="flex flex-row gap-3 items-stretch">
           <StatCard
-            title="In-progress Projects"
+            title="In-progress Tasks"
             value={6}
             total={12}
             percent={60}
             color="#9333ea"
           />
           <StatCard
-            title="Completed Projects"
+            title="Completed Tasks"
             value={15}
             total={26}
             percent={90}

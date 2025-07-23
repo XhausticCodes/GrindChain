@@ -1,30 +1,38 @@
 @import "tailwindcss";
 
-@theme {
-    --colors-dark: #000000;
-    --color-card: #1e1e2f;
-    --color-accent: #2F1B0C;
-    --color-secondaryAccent: #8C5C3A;
-    --color-textSecondary: #94a3b8;
-    --font-sans: "Inter", sans-serif;
-
-  }
-
-.blur-theme2 {
-  background: rgba(30, 30, 47, 0.6);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+@font-face {
+  font-family: "Harry-Potter";
+  src: url("./assets/Harry-Potter/Harry\ P.TTF");
 }
+
+@theme {
+  --colors-dark: #000000;
+  --color-card: #1e1e2f;
+  --color-accent: #2f1b0c;
+  --color-secondaryAccent: #8c5c3a;
+  --color-textSecondary: #94a3b8;
+  --font-sans: "Inter", sans-serif;
+}
+
 .blur-theme {
-  background: rgba(30, 30, 47, 0.6);
-  backdrop-filter: blur(4px) saturate(180%);
+  background: rgba(256, 256, 256, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.blur-theme2 {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.blur-theme3 {
+  backdrop-filter: saturate(200%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
 .hide-scrollbar {
   scrollbar-width: none;
-  -ms-overflow-style: none; 
+  -ms-overflow-style: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; 
+  display: none;
 }

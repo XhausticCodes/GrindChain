@@ -107,11 +107,12 @@ import {
     return (
       <div
         className="curved-loop-jacket"
-        style={{ visibility: ready ? "visible" : "hidden", cursor: cursorStyle }}
+        style={{ visibility: ready ? "visible" : "hidden", cursor: cursorStyle, fontFamily: "Harry-Potter, Inter, sans-serif" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
+        // style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
       >
         <svg className="curved-loop-svg" viewBox="0 0 1440 120">
           <text

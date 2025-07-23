@@ -4,6 +4,7 @@ import Particles from "../../public/Particles";
 import CurvedLoop from "../../public/CurvedLoop.jsx";
 import LoginContent from "../components/LoginContent.jsx";
 import LoginShowcase from "../components/LoginShowcase.jsx";
+import Footer from "../components/Footer.jsx";
 
 const LoginPage = () => {
   return (
@@ -52,19 +53,7 @@ const LoginPage = () => {
         </div>
       </main>
       {/* Footer */}
-      <footer className="relative z-10 w-full py-4 bg-black/30 text-white/70 text-center text-sm flex flex-col md:flex-row items-center justify-center gap-4 border-t border-white/10">
-        <span>&copy; {new Date().getFullYear()} GrindChain</span>
-        <span className="hidden md:inline">|</span>
-        <a href="#" className="hover:underline">
-          About
-        </a>
-        <a href="#" className="hover:underline">
-          Contact
-        </a>
-        <a href="#" className="hover:underline">
-          Privacy
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 };

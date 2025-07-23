@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema } from "mongoose";
 
 const taskSchema = new Schema({
     UserId: {
@@ -10,6 +10,32 @@ const taskSchema = new Schema({
         type: String,
         required: true,
     },
+    description: {
+        type: String,
+        default: ''
+    },
+    roadmap: {
+        type: String,
+        default: ''
+    },
+    duration: {
+        type: String,
+        default: '2 weeks'
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+    },
+    aiGenerated: {
+        type: Boolean,
+        default: false
+    },
+    milestones: [{
+        title: String,
+        completed: { type: Boolean, default: false },
+        dueDate: Date
+    }],
     completed: {
         type: Boolean,
         default: false,

@@ -40,10 +40,10 @@ const userSchema = new Schema({
     type: Date,
     default: null
   },
-  groups: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Group' 
-  }],
+  groups: {
+    type: String,
+    default: ""
+  },
   tasks: [taskSchema],
   checkinHistory: [{
     date: {

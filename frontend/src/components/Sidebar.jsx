@@ -1,6 +1,13 @@
 import { NavLink } from "react-router-dom";
+import { useAuth, } from "../contexts/AuthContext";
 
 const Sidebar = () => {
+  const {user, loading } = useAuth();
+
+  if(loading) {
+    return <div>Loading...</div>;
+  }
+
   const navItems = [
     { name: "HOME", path: "/dashboard" },
     { name: "TASKS", path: "/tasks" },
@@ -30,6 +37,29 @@ const Sidebar = () => {
             {item.name}
           </NavLink>
         ))}
+        {user.groupID ? (
+          <NavLink
+            to={`/chatRoom/${user.groupID}`}
+            className={({ isActive }) =>
+              `text-left text-white hover:text-accent ${
+                isActive ? "text-accent font-semibold" : ""
+              }`
+            }
+          >
+            ChatRoom
+          </NavLink>
+        ) : (
+          <NavLink
+            to="/create-group"
+            className={({ isActive }) =>
+              `text-left text-white hover:text-accent ${
+                isActive ? "text-accent font-semibold" : ""
+              }`
+            }
+          >
+            Create Group
+          </NavLink>
+        )}
       </nav>
     </aside>
   );

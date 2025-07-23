@@ -39,12 +39,7 @@ const Tasks = () => {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* Mystical Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(120,_119,_198,_0.3),_transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,_rgba(147,_51,_234,_0.2),_transparent_50%)]"></div>
-      </div>
-
+      
       {/* Main Content */}
       <div className="relative z-10 h-full flex gap-6 p-6">
         {/* Left Side - Chatbot */}

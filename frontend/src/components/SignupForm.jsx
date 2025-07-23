@@ -60,7 +60,7 @@ const SignupForm = () => {
   };
 
   return (
-    <form className="flex flex-col w-full gap-4" onSubmit={handleSubmit}>
+    <form className="flex flex-col px-4 w-full gap-2" onSubmit={handleSubmit}>
       {errors.length > 0 && (
         <div className="mb-4 p-3 bg-red-500/20 border border-red-400/50 text-red-200 rounded-lg backdrop-blur-sm">
           <ul className="list-none">
@@ -72,8 +72,8 @@ const SignupForm = () => {
           </ul>
         </div>
       )}
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+      <div className="relative text-sm">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -98,8 +98,8 @@ const SignupForm = () => {
           required
         />
       </div>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+      <div className="relative text-sm">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -124,8 +124,8 @@ const SignupForm = () => {
           required
         />
       </div>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+      <div className="relative text-sm">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -150,8 +150,8 @@ const SignupForm = () => {
           required
         />
       </div>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+      <div className="relative text-sm">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -178,13 +178,13 @@ const SignupForm = () => {
       </div>
       <button
         type="submit"
-        className="w-full py-3 mt-2 font-bold text-white bg-gradient-to-r from-amber-500 to-yellow-600 rounded-lg shadow-md hover:from-amber-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all disabled:opacity-60"
+        className="w-full py-2 mt-1 font-bold text-white text-base bg-gradient-to-r from-amber-500 to-yellow-600 rounded-md shadow-md hover:from-amber-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all disabled:opacity-60 cursor-pointer"
         disabled={loading}
       >
         {loading ? "Signing up..." : "Sign up"}
       </button>
-      <div className="flex items-center justify-between mt-2 text-sm">
-        <Link to="/login" className="text-amber-300 hover:underline">
+      <div className="flex items-center justify-center  mt-2 text-sm">
+        <Link to="/login" className="text-amber-300 hover:underline ">
           Already have an account? Login
         </Link>
       </div>

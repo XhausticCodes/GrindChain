@@ -12,9 +12,21 @@ const Layout = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/05ebf61ff7cb0591b96a8e06bdb5de1e.jpg)] overflow-hidden"></div>
+      {/* Castle Image:  */}
+      {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/05ebf61ff7cb0591b96a8e06bdb5de1e.jpg)] overflow-hidden"></div> */}
+
+      {/* Library:  */}
+      {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/Starry-Night.jpeg)] overflow-hidden"></div> */}
+
+      {/* Yelloish/browish midnight  */}
+      <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/ardeco.jpeg)] overflow-hidden"></div>
+
+      {/* rnb type clouds (Blue and purple)  */}
+      {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/2222.jpeg)] overflow-hidden"></div> */}
+
+
       <div className="absolute inset-0 bg-black/40 z-0 overflow-hidden" />
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden blur-theme3">
         {/* <Iridescence
           color={[0.22, 0.13, 0.09]}
           mouseReact={false}
@@ -52,7 +64,7 @@ const Layout = () => {
           <div className="flex-6 basis-3/5 h-4/5">
             <Sidebar />
           </div>
-          <div className="flex-4 basis-2/5 h-1/5">
+          <div className="flex-4 basis-2/5 h-1/5 ">
             <Pricing />
           </div>
         </div>

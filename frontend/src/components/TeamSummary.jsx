@@ -8,7 +8,7 @@ const team = [
 ];
 
 const TeamSummary = () => (
-  <div className="blur-theme bg-[#1e1e2f] p-3 flex flex-col items-center justify-center shadow-md rounded-2xl w-full h-[25]  min-h-0">
+  <div className="blur-theme bg-[#1e1e2f] p-3 flex flex-row items-center justify-center shadow-md rounded-2xl w-full h-[60%] gap-3 min-h-0">
     <div className="flex items-center mb-1">
       <div className="flex -space-x-4">
         {team.map((member, idx) => (

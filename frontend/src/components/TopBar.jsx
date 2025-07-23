@@ -8,7 +8,7 @@ const TopBar = ({ user, onLogout }) => {
       <input
         type="text"
         placeholder="Search..."
-        className="bg-dark text-white px-4 py-2 rounded-lg outline-none w-1/3"
+        className="bg-dark text-white px-4 py-2 rounded-lg outline-none w-1/3 bg-white/10"
       />
       <div className="flex items-center gap-4">
         <div className="relative">
@@ -25,7 +25,17 @@ const TopBar = ({ user, onLogout }) => {
           </button>
         </div>
 
-        <div className="w-8 h-8 bg-white rounded-full" />
+        {user?.avatar ? (
+          <img
+            src={user.avatar}
+            alt="avatar"
+            className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 shadow"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-2xl">
+            🧙🏻‍♂️
+          </div>
+        )}
       </div>
     </header>
   );

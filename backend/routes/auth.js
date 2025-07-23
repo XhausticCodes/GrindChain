@@ -9,5 +9,6 @@ router.post("/logout", authController.logout);
 router.get("/check", authController.checkAuth);
 
 router.get("/me", auth, authController.getMe);
+router.patch("/me", auth, authController.updateMe);
 
 export default router;

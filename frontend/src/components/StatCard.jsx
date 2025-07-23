@@ -4,30 +4,23 @@ import "react-circular-progressbar/dist/styles.css";
 
 const StatCard = ({ title, value, total, percent, color }) => {
   return (
-    <div className="blur-theme w-[180px] h-[180px] rounded-[12px] flex flex-col items-center justify-center shadow-md p-2">
-
-    <div className="bg-[#1e1e2f] w-[180px] h-[180px] rounded-[12px] flex flex-col items-center justify-center shadow-md p-2">
-
-      <div className="w-15 h-15 mb-4">
+    <div className="blur-theme bg-[#18192a] w-[200px] h-[220px] rounded-2xl flex flex-col items-center justify-center shadow p-6">
+      <div className="w-20 h-20 mb-4">
         <CircularProgressbar
           value={percent}
           text={`${percent}%`}
-          strokeWidth={6}
+          strokeWidth={8}
           styles={buildStyles({
             pathColor: color,
             textColor: "#fff",
-            trailColor: "#334155",
-            textSize: "18px",
+            trailColor: "#23243a",
+            textSize: "20px",
           })}
         />
       </div>
-
       <div className="text-md text-center font-bold text-white mb-1">
         {title}
       </div>
-
-      <div className="text-md text-center font-bold text-white mb-1">{title}</div>
-
       <div className="text-2xl font-extrabold text-white">
         {value}/{total}
       </div>

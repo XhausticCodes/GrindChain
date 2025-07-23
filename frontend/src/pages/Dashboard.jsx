@@ -1,57 +1,23 @@
 import React from "react";
 import { useAuth } from "../contexts/AuthContext";
-import Sidebar from "../components/Sidebar";
-import TopBar from "../components/TopBar";
 import WelcomeBanner from "../components/WelcomeBanner";
 import StatCard from "../components/StatCard";
 import ProgressChart from "../components/ProgressChart";
 import UpcomingTasks from "../components/UpcomingTasks";
 import TeamSummary from "../components/TeamSummary";
-// import CalendarPanel from "../components/CalendarPanel";
+import TermsAndConditions from "../components/TermsAndConditions";
 
 const Dashboard = () => {
-  return (
-    <>
-      <div className="flex flex-col gap-6 ">
-        <div className="flex flex-row gap-6">
-          <WelcomeBanner />
-          {/* <CalendarPanel /> */}
-          <div className="flex gap-6">
-            <StatCard
-              title="In-progress Projects"
-              value={6}
-              total={12}
-              percent={60}
-              color="#9333ea"
-            />
-            <StatCard
-              title="Completed Projects"
-              value={15}
-              total={26}
-              percent={90}
-              color="#3b82f6"
-            />
-          </div>
-import Pricing from "../components/Pricing";
-
-const Dashboard = () => {
-  const { user, logout } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-  };
+  const { user } = useAuth();
 
   return (
-    <div className="flex gap-4">
-      <div className="flex flex-col gap-3 justify-between">
-        <Sidebar />
-        <Pricing />
-      </div>
-      
-      <main className="flex-1 space-y-6 bg-[#000000] min-h-screen">
-        <TopBar user={user} onLogout={handleLogout} />
-        <div className="flex gap-6 flex-wrap">
+    <div className="flex flex-col h-full min-h-0 p-3 gap-3 overflow-hidden">
+      {/* Top row: WelcomeBanner and StatCards */}
+      <div className="flex flex-row gap-3 items-stretch w-full min-h-[180px]">
+        <div className="flex-1 min-w-0">
           <WelcomeBanner user={user} />
+        </div>
+        <div className="flex flex-row gap-3 items-stretch">
           <StatCard
             title="In-progress Projects"
             value={6}
@@ -67,20 +33,28 @@ const Dashboard = () => {
             color="#3b82f6"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ProgressChart />
-          <UpcomingTasks />
-        </div>
-        <TeamSummary />
-
       </div>
-    </>
-  );
-};
-
-export default Dashboard;
-
-      </main>
+      {/* Second row: ProgressChart/TermsAndConditions and UpcomingTasks/TeamSummary */}
+      <div className="flex flex-row gap-3 w-full flex-1 min-h-0">
+        {/* Left: ProgressChart (top) and TermsAndConditions (bottom) */}
+        <div className="flex-1 min-w-0 flex flex-col gap-3 min-h-0 h-full">
+          <div className="h-3/4 min-h-[180px]">
+            <ProgressChart />
+          </div>
+          <div className="h-1/4 min-h-[60px] flex items-end">
+            <TermsAndConditions />
+          </div>
+        </div>
+        {/* Right: UpcomingTasks (top) and TeamSummary (bottom) */}
+        <div className="w-[350px] min-w-[300px] flex flex-col gap-3 min-h-0 h-full">
+          <div className="h-3/4 min-h-[180px]">
+            <UpcomingTasks />
+          </div>
+          <div className="h-1/4 min-h-[60px] flex items-end">
+            <TeamSummary />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

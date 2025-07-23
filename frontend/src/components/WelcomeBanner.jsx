@@ -1,24 +1,18 @@
-const WelcomeBanner = () => {
-  return (
-    <div className="w-2/3 flex items-center justify-between bg-gradient-to-r from-accent to-secondaryAccent p-6 rounded-xl">
-      <div>
-        <h2 className="text-xl font-semibold">Welcome Back, UserName!</h2>
-
 const WelcomeBanner = ({ user }) => {
   return (
-    <div className="w-2/3 flex items-center justify-between bg-gradient-to-r from-accent to-secondaryAccent p-6 rounded-xl">
-      <div>
-        <h2 className="text-xl font-semibold">
-          Welcome Back, {user?.username || 'User'}!
+    <div className="flex items-center justify-between bg-gradient-to-r from-[#4b2e1e] to-[#7b5232] p-8 rounded-2xl w-full min-h-[220px]">
+      <div className="flex flex-col justify-center h-full">
+        <h2 className="text-3xl font-bold text-white mb-2">
+          Welcome Back, {user?.username || "User"}!
         </h2>
-        <p className="text-white text-sm mt-1">
+        <p className="text-white text-base mb-6">
           Check your daily tasks and schedules
         </p>
-        <div className="mt-4 flex gap-4">
-          <button className="bg-white text-accent font-semibold px-4 py-2 rounded-md">
+        <div className="flex gap-4">
+          <button className="bg-white text-[#4b2e1e] font-semibold px-6 py-3 rounded-md text-lg shadow hover:bg-gray-200 transition">
             + New Task
           </button>
-          <button className="bg-transparent border border-white text-white px-4 py-2 rounded-md">
+          <button className="bg-transparent border border-white text-white px-6 py-3 rounded-md text-lg hover:bg-white hover:text-[#4b2e1e] transition">
             Discover
           </button>
         </div>
@@ -26,13 +20,10 @@ const WelcomeBanner = ({ user }) => {
       <img
         src="/src/assets/Sorting_Hat.webp"
         alt="dashboard illustration"
-        className="w-32"
+        className="w-40 h-40 object-contain"
       />
     </div>
   );
 };
-
-
-export default WelcomeBanner;
 
 export default WelcomeBanner;

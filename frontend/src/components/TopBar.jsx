@@ -1,12 +1,10 @@
-
-const Topbar = () => {
-  return (
-    <header className="blur-theme flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
+// const Topbar = () => {
+//   return (
+//     <header className="blur-theme flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
 
 const TopBar = ({ user, onLogout }) => {
   return (
-    <header className="flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
-
+    <header className="blur-theme2 flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl">
       <input
         type="text"
         placeholder="Search..."
@@ -18,12 +16,10 @@ const TopBar = ({ user, onLogout }) => {
           <button className="text-xl">🔔</button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm">
-            {user?.username || 'User'}
-          </span>
-          <button 
+          <span className="text-white text-sm">{user?.username || "User"}</span>
+          <button
             onClick={onLogout}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors cursor-pointer"
           >
             Logout
           </button>
@@ -35,5 +31,4 @@ const TopBar = ({ user, onLogout }) => {
   );
 };
 
-export default Topbar;
 export default TopBar;

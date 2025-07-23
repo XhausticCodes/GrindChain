@@ -5,16 +5,6 @@ import "./index.css";
 import socketAPI from "./API/socketApi";
 
 const App = () => {
-  // useEffect(() => {
-  //   socketAPI.on("connect", () => {
-  //     console.log("✅ Connected to server:", socketAPI.id);
-  //   });
-  //   return () => {
-  //     socketAPI.disconnect();
-  //   };
-  // }, []);
-
-const App = () => {
   useEffect(() => {
     socketAPI.on("connect", () => {
       console.log("✅ Connected to server:", socketAPI.id);

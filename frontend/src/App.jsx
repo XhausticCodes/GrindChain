@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes";
 import "./index.css";
-// import socketAPI from "./API/socketApi";
+import socketAPI from "./API/socketApi";
 
 const App = () => {
   // useEffect(() => {
@@ -13,7 +13,6 @@ const App = () => {
   //     socketAPI.disconnect();
   //   };
   // }, []);
-import socketAPI from "./API/socketApi";
 
 const App = () => {
   useEffect(() => {
@@ -33,5 +32,4 @@ const App = () => {
   );
 };
 
-export default App;
 export default App;

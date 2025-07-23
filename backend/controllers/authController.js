@@ -56,12 +56,7 @@ const authController = {
       res.status(201).json({
         success: true,
         message: "User created successfully",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: { ...user.toObject() },
       });
     } catch (error) {
       console.error("Signup error:", error);
@@ -126,12 +121,7 @@ const authController = {
       res.json({
         success: true,
         message: "Login successful",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: { ...user.toObject() },
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -156,13 +146,7 @@ const authController = {
 
       res.json({
         success: true,
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+        user: { ...user.toObject() },
       });
     } catch (error) {
       console.error("Get user error:", error);
@@ -202,6 +186,14 @@ const authController = {
           id: user._id,
           username: user.username,
           email: user.email,
+          groupID: user.groups,
+          avatar: user.avatar,
+          description: user.description,
+          streak: user.streak,
+          lastCheckinDate: user.lastCheckinDate,
+          isActive: user.isActive,
+          tasks: user.tasks,
+          checkinHistory: user.checkinHistory,
         },
       });
     } catch (error) {

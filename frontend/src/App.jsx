@@ -3,16 +3,21 @@ import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes";
 import "./index.css";
 import socketAPI from "./API/socketApi";
+import { useAuth } from "./contexts/AuthContext";
 
 const App = () => {
+  const { user } = useAuth();
+
   useEffect(() => {
-    socketAPI.on("connect", () => {
+    // console.log(user);
+    const handleConnect = () => {
       console.log("✅ Connected to server:", socketAPI.id);
-    });
-    return () => {
-      socketAPI.disconnect();
     };
-  }, []);
+
+    socketAPI.on("connect", handleConnect);
+
+    return () => {};
+  }, [user]);
   return (
     <div className="bg-black text-white min-h-screen font-sans">
       <BrowserRouter>

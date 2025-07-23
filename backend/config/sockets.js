@@ -14,15 +14,35 @@ const connectToSockets = (server) => {
   io.on("connection", (socket) => {
     console.log("A User Connected", socket.id);
 
-    socket.on("joinGroup", ({ groupID, username }) => {
+    socket.on("joinGroup", async ({ groupID, username }) => {
       socket.join(groupID);
       console.log(`${username} joined group ${groupID}`);
+      try {
+        const currUser = await User.findOneAndUpdate(
+          { username: username },
+          { $set: { groups: groupID } },
+          { new: true }
+        );
+        if (currUser) {
+          console.log(`User ${username} successfully joined group ${groupID}`);
+        } else {
+          console.error("User not found or failed to update groups");
+        }
+        if (!currUser) {
+          console.error("User not found");
+        }
+      } catch (error) { 
+        console.error("Error joining group:", error);
+      }
       socket.to(groupID).emit("userJoined", { username, groupID });
     });
 
-    socket.on("sendMessage", ({ groupID, message, username }) => {
-      console.log(`Message from ${username} in group ${groupID}: ${message}`);
-      io.to(groupID).emit("receiveMessage", { message, username });
+    socket.on("sendMessage", ({ groupID, ...messageData }) => {
+      console.log(
+        `Message from ${messageData.sender} in group ${groupID}: ${messageData.message}`
+      );
+
+      io.to(groupID).emit("receiveMessage", messageData);
     });
 
     socket.on("taskCompleted", async ({ taskID, groupID, username }) => {

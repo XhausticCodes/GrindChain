@@ -9,6 +9,8 @@ import Chatroom from "./pages/Chatroom";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
+import GroupChat from "./pages/GroupChat";
+import CreateGroup from "./pages/CreateGroup";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
@@ -68,9 +70,11 @@ const AppRoutes = () => (
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="analytics" element={<Analytics />} />
-        <Route path="chatroom" element={<Chatroom />} />
+        <Route path="chatroom/:groupID" element={<GroupChat />} />
+        {/* <Route path="chatroom" element={<Chatroom />} /> */}
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="create-group" element={<CreateGroup />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

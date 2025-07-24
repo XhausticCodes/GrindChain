@@ -5,6 +5,10 @@ import { Outlet } from "react-router-dom";
 import Galaxy from "../../public/Galaxy";
 import { useAuth } from "../contexts/AuthContext";
 import Particles from "../../public/Particles";
+import Iridescence from "../../public/Iridescence";
+import Aurora from "../../public/Aurora";
+
+
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -13,17 +17,16 @@ const Layout = () => {
     <div className="relative h-screen w-full overflow-hidden">
       {/* Background */}
       {/* Castle Image:  */}
-      {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/05ebf61ff7cb0591b96a8e06bdb5de1e.jpg)] overflow-hidden"></div> */}
+      <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/05ebf61ff7cb0591b96a8e06bdb5de1e.jpg)] overflow-hidden"></div>
 
       {/* Library:  */}
       {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/Starry-Night.jpeg)] overflow-hidden"></div> */}
 
       {/* Yelloish/browish midnight  */}
-      <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/ardeco.jpeg)] overflow-hidden"></div>
+      {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/ardeco.jpeg)] overflow-hidden"></div> */}
 
       {/* rnb type clouds (Blue and purple)  */}
       {/* <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(/src/assets/2222.jpeg)] overflow-hidden"></div> */}
-
 
       <div className="absolute inset-0 bg-black/40 z-0 overflow-hidden" />
       <div className="absolute inset-0 z-0 overflow-hidden blur-theme3">
@@ -36,8 +39,8 @@ const Layout = () => {
         {/* <Galaxy
           mouseRepulsion={true}
           mouseInteraction={true}
-          density={1}
-          glowIntensity={0.5}
+          density={0.5}
+          glowIntensity={0.3}
           saturation={0.4}
           hueShift={15}
         /> */}

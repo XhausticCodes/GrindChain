@@ -104,9 +104,9 @@ export const AuthProvider = ({ children }) => {
         logout,
         checkAuth,
         updateProfile,
+        setUser,
       }}
     >
-
       {children}
     </AuthContext.Provider>
   );

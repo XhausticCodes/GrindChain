@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import ToastNotification from "../components/profile/ToastNotification";
 
 const AuthContext = createContext();
 
@@ -30,6 +31,13 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         setAuthenticated(true);
       }
+
+      if (data.streakChanged === 1) {
+        <ToastNotification show={true} message={`🔥 Streak increased to ${data.user.streak}!`} />
+      } else if (data.streakChanged === 0) {
+        <ToastNotification show={true} message={`😔 Streak reset.`} />
+      }
+
     } catch (error) {
       console.error("Auth check failed:", error);
     } finally {
@@ -106,7 +114,6 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
       }}
     >
-
       {children}
     </AuthContext.Provider>
   );

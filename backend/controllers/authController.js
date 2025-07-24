@@ -193,9 +193,29 @@ const authController = {
         });
       }
 
+      //StreakLogic
+      const now = new Date();
+      const lastCheckIn = new Date(user.lastVisited || 0);
+      
+      const hoursPassed = (now - lastCheckIn) / (1000 * 60 * 60);
+      if (hoursPassed >= 24 && hoursPassed < 48) {
+        user.streak += 1;
+        user.streakChanged = 1; // 1 for change
+      } else if( hoursPassed > 48) {
+        user.streak = 0;
+        user.streakChanged = 0; // 0 for reset
+      } else if( hoursPassed < 24) {
+        user.streakChanged =  2; // 2 for no change
+      }
+
+      user.lastVisited = now;
+      await user.save();
+
+      //sending user data
       res.json({
         success: true,
         authenticated: true,
+        streakChanged,
         user: {
           id: user._id,
           username: user.username,
@@ -206,6 +226,7 @@ const authController = {
           avatar: user.avatar,
           description: user.description,
           streak: user.streak,
+          lastVisited: user.lastVisited,
           lastCheckinDate: user.lastCheckinDate,
 
           groups: user.groups,

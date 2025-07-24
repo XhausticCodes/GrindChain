@@ -1,46 +1,46 @@
-import React, { useState } from 'react';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import React, { useState } from "react";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const ManualTaskForm = ({ onTaskCreated }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: 'medium',
-    duration: '1 week',
-    roadmapItems: ['']
+    title: "",
+    description: "",
+    priority: "medium",
+    duration: "1 week",
+    roadmapItems: [""],
   });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleRoadmapItemChange = (index, value) => {
     const newItems = [...formData.roadmapItems];
     newItems[index] = value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      roadmapItems: newItems
+      roadmapItems: newItems,
     }));
   };
 
   const addRoadmapItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      roadmapItems: [...prev.roadmapItems, '']
+      roadmapItems: [...prev.roadmapItems, ""],
     }));
   };
 
   const removeRoadmapItem = (index) => {
     if (formData.roadmapItems.length > 1) {
       const newItems = formData.roadmapItems.filter((_, i) => i !== index);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        roadmapItems: newItems
+        roadmapItems: newItems,
       }));
     }
   };
@@ -58,49 +58,49 @@ const ManualTaskForm = ({ onTaskCreated }) => {
         priority: formData.priority,
         duration: formData.duration,
         roadmapItems: formData.roadmapItems
-          .filter(item => item.trim())
+          .filter((item) => item.trim())
           .map((item, index) => ({
             text: item.trim(),
             completed: false,
-            order: index
+            order: index,
           })),
-        aiGenerated: false
+        aiGenerated: false,
       };
 
-      const response = await fetch('/api/ai/create-manual-task', {
-        method: 'POST',
+      const response = await fetch("/api/ai/create-manual-task", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       });
 
       const data = await response.json();
 
       if (data.success) {
         onTaskCreated(data.data.task);
-        
+
         // Reset form
         setFormData({
-          title: '',
-          description: '',
-          priority: 'medium',
-          duration: '1 week',
-          roadmapItems: ['']
+          title: "",
+          description: "",
+          priority: "medium",
+          duration: "1 week",
+          roadmapItems: [""],
         });
       } else {
-        console.error('Failed to create task:', data.message);
+        console.error("Failed to create task:", data.message);
       }
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error("Error creating task:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="bg-blue-400/10 shadow-[0_0_40px_10px_rgba(59,130,246,0.15)] rounded-2xl h-full flex flex-col justify-center">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm border border-blue-500/30 rounded-t-2xl p-4">
         <div className="flex items-center gap-3">
@@ -109,13 +109,15 @@ const ManualTaskForm = ({ onTaskCreated }) => {
             <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Create Manual Task
             </h2>
-            <p className="text-sm text-gray-400">Design your own productivity journey</p>
+            <p className="text-sm text-gray-400">
+              Design your own productivity journey
+            </p>
           </div>
         </div>
       </div>
 
       {/* Form */}
-      <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-blue-500/30 p-6 overflow-y-auto">
+      <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-blue-500/30 p-6 overflow-y-auto scrollbar-none hide-scrollbar">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div>
@@ -197,7 +199,9 @@ const ManualTaskForm = ({ onTaskCreated }) => {
                   <input
                     type="text"
                     value={item}
-                    onChange={(e) => handleRoadmapItemChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleRoadmapItemChange(index, e.target.value)
+                    }
                     className="flex-1 bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
                     placeholder={`Step ${index + 1}...`}
                   />
@@ -212,7 +216,7 @@ const ManualTaskForm = ({ onTaskCreated }) => {
                   )}
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 onClick={addRoadmapItem}
@@ -229,7 +233,7 @@ const ManualTaskForm = ({ onTaskCreated }) => {
             disabled={loading || !formData.title.trim()}
             className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform"
           >
-            {loading ? 'Creating Task...' : 'Create Task'}
+            {loading ? "Creating Task..." : "Create Task"}
           </button>
         </form>
       </div>

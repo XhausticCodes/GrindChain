@@ -32,13 +32,29 @@ const EditProfileForm = ({ form, setForm, saving, onSave, user }) => (
         <label className="block text-white/80 text-sm mb-1">Description</label>
         <textarea
           value={form.description}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, description: e.target.value }))
-          }
+          onChange={(e) => {
+            const value = e.target.value;
+            const words = value.trim().split(/\s+/);
+            if (words.length <= 30) {
+              setForm((f) => ({ ...f, description: value }));
+            } else {
+              // Only allow up to 30 words
+              setForm((f) => ({
+                ...f,
+                description: words.slice(0, 30).join(" "),
+              }));
+            }
+          }}
           className="w-full px-4 py-3 bg-black/20 text-white/80 border border-white/10 rounded min-h-[120px] resize-none focus:outline-none text-base"
           placeholder="Tell us about yourself..."
           rows={5}
         />
+        <div className="text-right text-xs text-yellow-300 mt-1">
+          {form.description.trim()
+            ? form.description.trim().split(/\s+/).length
+            : 0}
+          /30 words
+        </div>
       </div>
       <div className="flex gap-4">
         <div className="bg-black/30 rounded-lg px-4 py-2 text-yellow-300 text-center flex-1">

@@ -1,6 +1,6 @@
 import React from "react";
 
-const AvatarCard = ({ avatar, username }) => (
+const AvatarCard = ({ avatar }) => (
   <div className="flex-1 flex items-end justify-center p-6 md:p-12">
     <div className="relative w-40 h-40 md:w-64 md:h-64 flex items-center justify-center">
       {/* Magical shadow: black + yellow blurred layers */}

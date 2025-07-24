@@ -247,10 +247,10 @@ const geminiController = {
       });
     }
 
-    // FIX: Ensure groups is an array before saving
-    if (typeof user.groups === 'string') {
-      user.groups = [];
-    }
+    // // FIX: Ensure groups is an array before saving
+    // if (typeof user.groups === 'string') {
+    //   user.groups = [];
+    // }
 
     const task = user.tasks.id(taskId);
     if (!task) {

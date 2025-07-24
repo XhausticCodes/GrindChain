@@ -215,7 +215,7 @@ const authController = {
       res.json({
         success: true,
         authenticated: true,
-        streakChanged,
+        streakChanged: user.streakChanged,
         user: {
           id: user._id,
           username: user.username,

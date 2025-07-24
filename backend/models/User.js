@@ -50,7 +50,7 @@ const userSchema = new Schema({
   },
   // FIX: Change groups from String to Array
   groups: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Group'
   }],
   tasks: [taskSchema],

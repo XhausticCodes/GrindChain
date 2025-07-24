@@ -56,12 +56,7 @@ const authController = {
       res.status(201).json({
         success: true,
         message: "User created successfully",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: { ...user.toObject() },
       });
     } catch (error) {
       console.error("Signup error:", error);
@@ -126,12 +121,7 @@ const authController = {
       res.json({
         success: true,
         message: "Login successful",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: { ...user.toObject() },
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -160,9 +150,17 @@ const authController = {
           id: user._id,
           username: user.username,
           email: user.email,
+          avatar: user.avatar,
+          description: user.description,
+          streak: user.streak,
+          lastCheckinDate: user.lastCheckinDate,
+          groups: user.groups,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         },
+
+        user: { ...user.toObject() },
+
       });
     } catch (error) {
       console.error("Get user error:", error);
@@ -202,6 +200,22 @@ const authController = {
           id: user._id,
           username: user.username,
           email: user.email,
+
+          groupID: user.groups,
+
+          avatar: user.avatar,
+          description: user.description,
+          streak: user.streak,
+          lastCheckinDate: user.lastCheckinDate,
+
+          groups: user.groups,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+
+          isActive: user.isActive,
+          tasks: user.tasks,
+          checkinHistory: user.checkinHistory,
+
         },
       });
     } catch (error) {
@@ -211,6 +225,45 @@ const authController = {
         authenticated: false,
       });
       console.error("Auth check error:", error);
+    }
+  },
+
+  // PATCH /api/auth/me
+  updateMe: async (req, res) => {
+    try {
+      const user = req.user;
+      const { description, avatar } = req.body;
+
+      if (typeof description === 'string') {
+        user.description = description;
+      }
+      if (typeof avatar === 'string') {
+        user.avatar = avatar;
+      }
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          description: user.description,
+          streak: user.streak,
+          lastCheckinDate: user.lastCheckinDate,
+          groups: user.groups,
+          updatedAt: user.updatedAt,
+        },
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update profile',
+      });
     }
   },
 };

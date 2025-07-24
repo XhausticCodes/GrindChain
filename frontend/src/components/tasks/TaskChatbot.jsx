@@ -113,7 +113,7 @@ const TaskChatbot = ({ onTaskGenerated }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-purple-500/30 p-4 overflow-y-auto">
+      <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-purple-500/30 p-4 overflow-y-auto hide-scrollbar scrollbar-none">
         <div className="space-y-4">
           {messages.map((message) => (
             <div

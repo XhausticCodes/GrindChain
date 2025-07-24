@@ -1,7 +1,7 @@
 import React from "react";
 
 const Pricing = () => (
-  <div className="blur-theme2 bg-[#1e1e2f] rounded-2xl p-4 shadow-md w-full h-full flex flex-col items-center justify-center">
+  <div className="blur-theme2 bg-[#1e1e2f] rounded-tr-3xl p-4 shadow-md w-full h-full flex flex-col items-center justify-center">
     <div className="text-white font-bold text-lg mb-2">Upgrade Plan</div>
     <div className="text-[#94a3b8] text-sm mb-4">
       Get more features with Pro!

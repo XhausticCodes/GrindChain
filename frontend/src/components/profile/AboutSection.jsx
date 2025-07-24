@@ -14,7 +14,7 @@ const AboutSection = ({ username, description }) => (
     >
       About
     </div>
-    <div className="text-white/80 text-base min-h-[48px] text-center">
+    <div className="blur-theme px-3 py-2 text-white/80 text-base min-h-[48px] text-center rounded-xl ">
       {description || (
         <span className="italic text-white/40">No description set.</span>
       )}

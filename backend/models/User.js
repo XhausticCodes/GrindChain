@@ -36,6 +36,14 @@ const userSchema = new Schema({
     type: Number,
     default: 0
   },
+  lastVisited: {
+    type: Date,
+    default: Date.now,
+  },
+  streakChanged: {
+    type: Number,
+    default: 0,
+  },
   lastCheckinDate: {
     type: Date,
     default: null

@@ -47,11 +47,15 @@ const Profile = () => {
       <div className="w-full h-full min-h-0 min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-2 md:grid-rows-1 gap-0 bg-transparent">
         {/* Left: Avatar (top) and Description (bottom) */}
         <div className="flex flex-col h-full w-full">
-          <AvatarCard avatar={form.avatar} username={user.username} />
+          <div className="h-1/2">
+          <AvatarCard avatar={form.avatar} />
+          </div>
+          <div className="h-1/2">
           <AboutSection
             username={user.username}
             description={form.description}
-          />
+            />
+            </div>
         </div>
         {/* Right: Edit Form (spans both quarters) */}
         <div className="flex flex-col justify-center items-center h-full w-full bg-transparent p-6 md:p-12 row-span-2">

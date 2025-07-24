@@ -17,10 +17,10 @@ const CreateGroup = () => {
       groupID: groupID,
       username: user.username,
     });
-    // setUser((prevUser) => ({
-    //   ...prevUser,
-    //   groupID: groupID,
-    // }));
+    setUser((prevUser) => ({
+      ...prevUser,
+      groupID: groupID,
+    }));
     navigate(`/chatroom/${groupID}`); // Pass groupID in state
   };
 
@@ -40,25 +40,31 @@ const CreateGroup = () => {
   }, [user.groupID]);
 
   return (
-    <div>
-      <h1>Chat Room</h1>
-      <div>
+    <div className="min-h-screen w-full flex items-center justify-center blur-theme rounded-tl-3xl">
+      <div className="bg-black/60 rounded-3xl shadow-2xl p-10 flex flex-col items-center w-full max-w-md border border-yellow-400/30 backdrop-blur-md">
+        <h1
+          className="text-4xl font-bold text-yellow-400 mb-6 tracking-wider text-center"
+          style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
+        >
+          Create or Join a Chat Room
+        </h1>
         <input
           type="text"
-          placeholder="Enter group name"
+          placeholder="Enter group name or ID"
           value={groupID}
           onChange={(e) => setGroupID(e.target.value)}
+          className="w-full px-5 py-3 mb-6 rounded-xl bg-white/10 text-white/90 border border-yellow-400/30 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-lg placeholder:text-yellow-200 shadow"
         />
-        <div>
+        <div className="flex gap-4 w-full justify-center">
           <button
-            onClick={() => createGroupKey()}
-            className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:from-amber-600 hover:to-yellow-700 transition-all"
+            onClick={createGroupKey}
+            className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-6 py-3 rounded-xl font-semibold shadow hover:from-amber-600 hover:to-yellow-700 transition-all text-lg"
           >
             Create Group
           </button>
           <button
-            onClick={() => handleJoinGroup()}
-            className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:from-amber-600 hover:to-yellow-700 transition-all"
+            onClick={handleJoinGroup}
+            className="flex-1 bg-gradient-to-r from-yellow-600 to-amber-500 text-white px-6 py-3 rounded-xl font-semibold shadow hover:from-yellow-700 hover:to-amber-600 transition-all text-lg"
           >
             Join Group
           </button>

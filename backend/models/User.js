@@ -36,14 +36,23 @@ const userSchema = new Schema({
     type: Number,
     default: 0
   },
+  lastVisited: {
+    type: Date,
+    default: Date.now,
+  },
+  streakChanged: {
+    type: Number,
+    default: 0,
+  },
   lastCheckinDate: {
     type: Date,
     default: null
   },
-  groups: {
-    type: String,
-    default: ""
-  },
+  // FIX: Change groups from String to Array
+  groups: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Group'
+  }],
   tasks: [taskSchema],
   checkinHistory: [{
     date: {

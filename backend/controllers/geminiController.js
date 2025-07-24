@@ -220,106 +220,111 @@ const geminiController = {
     }
   },
   updateRoadmapItem: async (req, res) => {
-    try {
-      const { taskId, itemIndex } = req.params;
-      const { completed } = req.body;
-      const userId = req.user?.id;
+  try {
+    const { taskId, itemIndex } = req.params;
+    const { completed } = req.body;
+    const userId = req.user?.id;
 
-      console.log("UpdateRoadmapItem called with:", {
-        taskId,
-        itemIndex: parseInt(itemIndex),
-        completed,
-        userId,
-      });
+    console.log("UpdateRoadmapItem called with:", {
+      taskId,
+      itemIndex: parseInt(itemIndex),
+      completed,
+      userId,
+    });
 
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: "User authentication required",
-        });
-      }
-
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-
-      const task = user.tasks.id(taskId);
-      if (!task) {
-        return res.status(404).json({
-          success: false,
-          message: "Task not found",
-        });
-      }
-
-      console.log("Task found:", {
-        taskTitle: task.title,
-        roadmapItemsLength: task.roadmapItems?.length || 0,
-        requestedIndex: parseInt(itemIndex),
-      });
-
-      const index = parseInt(itemIndex);
-
-      if (task.roadmapItems && task.roadmapItems[index]) {
-        console.log("Updating item:", {
-          currentText: task.roadmapItems[index].text,
-          currentCompleted: task.roadmapItems[index].completed,
-          newCompleted: completed,
-        });
-
-        task.roadmapItems[index].completed = completed;
-
-        const completedItems = task.roadmapItems.filter(
-          (item) => item.completed
-        ).length;
-        const totalItems = task.roadmapItems.length;
-        task.overallProgress =
-          totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-
-        // **NEW: Mark task as completed if all items are done**
-        task.completed = task.overallProgress === 100;
-
-        await user.save();
-
-        console.log("Item updated successfully:", {
-          newProgress: task.overallProgress,
-          completedItems,
-          totalItems,
-          taskCompleted: task.completed,
-        });
-
-        res.json({
-          success: true,
-          message: "Roadmap item updated successfully",
-          data: {
-            task,
-            progress: task.overallProgress,
-          },
-        });
-      } else {
-        console.log("Item not found:", {
-          requestedIndex: index,
-          availableItems: task.roadmapItems?.length || 0,
-        });
-
-        res.status(404).json({
-          success: false,
-          message: "Roadmap item not found",
-        });
-      }
-    } catch (error) {
-      console.error("Update roadmap item error:", error);
-
-      res.status(500).json({
+    if (!userId) {
+      return res.status(401).json({
         success: false,
-        message: "Failed to update roadmap item",
-        error: error.message,
+        message: "User authentication required",
       });
     }
-  },
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // FIX: Ensure groups is an array before saving
+    if (typeof user.groups === 'string') {
+      user.groups = [];
+    }
+
+    const task = user.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    console.log("Task found:", {
+      taskTitle: task.title,
+      roadmapItemsLength: task.roadmapItems?.length || 0,
+      requestedIndex: parseInt(itemIndex),
+    });
+
+    const index = parseInt(itemIndex);
+
+    if (task.roadmapItems && task.roadmapItems[index]) {
+      console.log("Updating item:", {
+        currentText: task.roadmapItems[index].text,
+        currentCompleted: task.roadmapItems[index].completed,
+        newCompleted: completed,
+      });
+
+      task.roadmapItems[index].completed = completed;
+
+      const completedItems = task.roadmapItems.filter(
+        (item) => item.completed
+      ).length;
+      const totalItems = task.roadmapItems.length;
+      task.overallProgress =
+        totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+      // Mark task as completed if all items are done
+      task.completed = task.overallProgress === 100;
+
+      await user.save();
+
+      console.log("Item updated successfully:", {
+        newProgress: task.overallProgress,
+        completedItems,
+        totalItems,
+        taskCompleted: task.completed,
+      });
+
+      res.json({
+        success: true,
+        message: "Roadmap item updated successfully",
+        data: {
+          task,
+          progress: task.overallProgress,
+        },
+      });
+    } else {
+      console.log("Item not found:", {
+        requestedIndex: index,
+        availableItems: task.roadmapItems?.length || 0,
+      });
+
+      res.status(404).json({
+        success: false,
+        message: "Roadmap item not found",
+      });
+    }
+  } catch (error) {
+    console.error("Update roadmap item error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update roadmap item",
+      error: error.message,
+    });
+  }
+},
 
   getTaskAnalytics: async (req, res) => {
     try {

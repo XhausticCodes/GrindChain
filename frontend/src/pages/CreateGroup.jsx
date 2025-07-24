@@ -17,11 +17,11 @@ const CreateGroup = () => {
       groupID: groupID,
       username: user.username,
     });
-    setUser((prevUser) => ({
-      ...prevUser,
-      groupID: groupID,
-    }));
-    navigate(`/chatroom`, { state: { groupID } }); // Pass groupID in state
+    // setUser((prevUser) => ({
+    //   ...prevUser,
+    //   groupID: groupID,
+    // }));
+    navigate(`/chatroom/${groupID}`); // Pass groupID in state
   };
 
   const handleJoinGroup = () => {
@@ -33,7 +33,10 @@ const CreateGroup = () => {
   };
 
   useEffect(() => {
-    navigate(`/chatroom/${user.groupID}`, { replace: true });
+    if (user.groupID)
+      // If user already has a groupID, redirect to chatroom
+      navigate(`/chatroom/${user.groupID}`, { replace: true });
+    return;
   }, [user.groupID]);
 
   return (

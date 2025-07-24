@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { mockMessages } from "../assets/mockMessages";
 import { useAuth } from "../contexts/AuthContext";
 import socketAPI from "../API/socketApi";
-import { useNavigate } from "react-router-dom";
 
 const GroupChat = () => {
-  const navigate = useNavigate();
 
   const { user } = useAuth();
 
@@ -57,7 +54,7 @@ const GroupChat = () => {
 
   return (
     <div
-      className="flex h-[calc(100vh-10rem)] min-h-0 w-full bg-transparent rounded-xl shadow overflow-hidden"
+      className="flex h-[calc(100vh-10rem)] min-h-0 w-full bg-transparent  rounded-xl shadow overflow-hidden"
       style={{ maxHeight: "calc(100vh - 2rem)" }}
     >
       <div

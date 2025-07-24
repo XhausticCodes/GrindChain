@@ -12,7 +12,6 @@ const Sidebar = () => {
     { name: "HOME", path: "/dashboard" },
     { name: "TASKS", path: "/tasks" },
     { name: "ANALYTICS", path: "/analytics" },
-    { name: "CHATROOM", path: "/chatroom" },
     { name: "NOTIFICATIONS", path: "/notifications" },
     { name: "PROFILE", path: "/profile" },
   ];
@@ -41,23 +40,23 @@ const Sidebar = () => {
           <NavLink
             to={`/chatRoom/${user.groupID}`}
             className={({ isActive }) =>
-              `text-left text-white hover:text-accent ${
-                isActive ? "text-accent font-semibold" : ""
+              `text-left px-3 py-1 text-white hover:text-yellow-500 hover:bg-white/20 rounded-sm text-xl tracking-widest ${
+                isActive ? "text-yellow-600 bg-white/10" : ""
               }`
             }
           >
-            ChatRoom
+            CHAT ROOM
           </NavLink>
         ) : (
           <NavLink
             to="/create-group"
             className={({ isActive }) =>
-              `text-left text-white hover:text-accent ${
-                isActive ? "text-accent font-semibold" : ""
+              `text-left px-3 py-1 text-white hover:text-yellow-500 hover:bg-white/20 rounded-sm text-xl tracking-widest ${
+                isActive ? "text-yellow-600 bg-white/10" : ""
               }`
             }
           >
-            Create Group
+            CREATE GROUP
           </NavLink>
         )}
       </nav>

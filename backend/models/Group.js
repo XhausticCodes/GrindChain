@@ -1,27 +1,27 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const groupSchema = new mongoose.Schema({
+const groupSchema = new Schema({
   name: {
     type: String,
     required: true,
     trim: true,
     maxlength: 100
-  },
+  },  
   description: {
     type: String,
     maxlength: 500,
     default: ''
   },
   members: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
+    type: Schema.Types.ObjectId, 
     ref: 'User' 
   }],
   admins: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
+    type: Schema.Types.ObjectId, 
     ref: 'User' 
   }],
   goal: { 
-    type: mongoose.Schema.Types.ObjectId, 
+    type: Schema.Types.ObjectId, 
     ref: 'Goal' 
   },
   streakCount: {
@@ -41,4 +41,4 @@ const groupSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Group', groupSchema);
+export default model('Group', groupSchema);

@@ -15,7 +15,7 @@ export default function ChatInput({ input, setInput, onSend }) {
       />
       <button
         type="submit"
-        className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+        className="p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white"
       >
         <span role="img" aria-label="send">
           ➤

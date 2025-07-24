@@ -52,14 +52,14 @@ const GroupChat = () => {
   }, [groupID, user]);
 
   return (
-    <div className="min-h-screen w-full flex blur-theme rounded-tl-3xl">
-      <div className="w-full h-[89vh] flex flex-col bg-white/20 dark:bg-black/40 rounded-tl-3xl shadow-2xl border border-yellow-400/30 backdrop-blur-md overflow-hidden">
+    <div className="min-h-screen w-full flex blur-theme2 rounded-tl-3xl">
+      <div className="w-full h-[89vh] flex flex-coldark:bg-black/40 rounded-tl-3xl shadow-2xl border border-yellow-400/30 overflow-hidden">
         <section
           className="flex-1 flex flex-col min-h-0"
           style={{ minWidth: 0 }}
         >
           {/* chatHeader for GroupChat content */}
-          <div className="px-8 pt-6 pb-2 bg-gradient-to-r from-yellow-400/30 to-amber-400/10 rounded-tl-3xl shadow-sm flex items-center justify-between">
+          <div className="px-8 pt-6 pb-2 bg-gradient-to-r from-yellow-400/30 to-yellow-400/10 rounded-tl-3xl shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img
                 src=""
@@ -68,19 +68,19 @@ const GroupChat = () => {
               />
               <div>
                 <div
-                  className="font-bold text-xl text-yellow-700 dark:text-yellow-300 tracking-wide"
+                  className="font-bold text-xl text-yellow-700 dark:text-yellow-300 tracking-wider"
                   style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
                 >
-                  Group Name
+                  HACKAHOLICS
                 </div>
                 <div className="text-xs text-green-500 font-semibold">
-                  how Many people Active
+                  2 people active
                 </div>
               </div>
             </div>
           </div>
           {/* ChatMessages for GroupChat content */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4 scrollbar-none hide-scrollbar space-y-3 mt-3">
+          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4 scrollbar-none hide-scrollbar space-y-3 mt-3 ">
             {/* Messages will be rendered here */}
             {messages.map((msg) => (
               <div
@@ -135,7 +135,7 @@ const GroupChat = () => {
             />
             <button
               onClick={sendMessage}
-              className="px-5 py-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-xl shadow-lg transition-all"
+              className="px-5 py-3 rounded-full bg-yellow-600 hover:bg-yellow-700 text-white text-xl shadow-lg transition-all"
             >
               ➤
             </button>

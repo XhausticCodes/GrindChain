@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   TrashIcon,
   ChevronDownIcon,
@@ -18,35 +18,71 @@ const TaskList = ({
   onTaskUpdated,
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
+  const [optimisticTasks, setOptimisticTasks] = useState([]);
 
-  const handleRoadmapItemToggle = async (taskId, actualIndex, currentStatus) => {
-    console.log("Toggling roadmap item:", {
-      taskId,
-      actualIndex,
-      currentStatus,
-    });
+  // Sync optimistic tasks with actual tasks
+  useEffect(() => {
+    setOptimisticTasks(tasks);
+  }, [tasks]);
 
+  const handleRoadmapItemToggle = useCallback(async (taskId, itemIndex, currentStatus) => {
+    const newStatus = !currentStatus;
+    
+    // 1. IMMEDIATE optimistic update (instant visual feedback)
+    setOptimisticTasks(prevTasks => 
+      prevTasks.map(task => {
+        if (task._id === taskId) {
+          const updatedRoadmapItems = [...task.roadmapItems];
+          updatedRoadmapItems[itemIndex] = {
+            ...updatedRoadmapItems[itemIndex],
+            completed: newStatus
+          };
+
+          // Calculate new progress
+          const completedItems = updatedRoadmapItems.filter(item => item.completed).length;
+          const totalItems = updatedRoadmapItems.length;
+          const newProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+          return {
+            ...task,
+            roadmapItems: updatedRoadmapItems,
+            overallProgress: newProgress,
+            completed: newProgress === 100
+          };
+        }
+        return task;
+      })
+    );
+
+    // 2. Backend update (happens in background)
     try {
       const response = await fetch(
-        `/api/ai/tasks/${taskId}/roadmap/${actualIndex}`,
+        `/api/ai/tasks/${taskId}/roadmap/${itemIndex}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify({ completed: !currentStatus }),
+          body: JSON.stringify({ completed: newStatus }),
         }
       );
 
       const data = await response.json();
       if (data.success && onTaskUpdated) {
+        // Update parent state with server response
         onTaskUpdated(data.data.task);
+      } else {
+        console.error('Failed to update task:', data.message);
+        // Revert optimistic update on error
+        setOptimisticTasks(tasks);
       }
     } catch (error) {
       console.error("Error updating roadmap item:", error);
+      // Revert optimistic update on error
+      setOptimisticTasks(tasks);
     }
-  };
+  }, [onTaskUpdated, tasks]);
 
   const handleDelete = async (taskId) => {
     try {
@@ -79,6 +115,9 @@ const TaskList = ({
     }
   };
 
+  // Use optimistic tasks for rendering
+  const tasksToRender = optimisticTasks;
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -91,7 +130,7 @@ const TaskList = ({
                 Task Management
               </h2>
               <p className="text-sm text-gray-400">
-                {tasks.length} active tasks
+                {tasksToRender.length} active tasks
               </p>
             </div>
           </div>
@@ -112,7 +151,7 @@ const TaskList = ({
           <div className="flex items-center justify-center h-full">
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : tasks.length === 0 ? (
+        ) : tasksToRender.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <SparklesIcon className="w-16 h-16 text-purple-400/50 mb-4" />
             <p className="text-gray-400 text-lg mb-2">No tasks yet</p>
@@ -120,7 +159,7 @@ const TaskList = ({
           </div>
         ) : (
           <div className="p-4 space-y-3">
-            {tasks.map((task, index) => (
+            {tasksToRender.map((task, index) => (
               <div key={task._id} className="group">
                 <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-4 hover:border-purple-500/50 transition-all duration-300">
                   {/* Task Header */}
@@ -171,7 +210,7 @@ const TaskList = ({
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-2">
                             <div
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
                               style={{ width: `${task.overallProgress || 0}%` }}
                             />
                           </div>
@@ -184,7 +223,7 @@ const TaskList = ({
                         onClick={() => setExpandedTask(expandedTask === task._id ? null : task._id)}
                         className="text-gray-400 hover:text-purple-400 transition-colors hover:scale-105"
                       >
-                        <ChevronDownIcon className={`w-5 h-5 transition-transform ${expandedTask === task._id ? "rotate-180" : ""}`} />
+                        <ChevronDownIcon className={`w-5 h-5 transition-transform duration-300 ${expandedTask === task._id ? "rotate-180" : ""}`} />
                       </button>
 
                       <button
@@ -202,42 +241,40 @@ const TaskList = ({
                       <div className="space-y-2">
                         {task.roadmapItems
                           .slice(0, expandedTask === task._id ? task.roadmapItems.length : 3)
-                          .map((item, displayIndex) => {
-                            return (
-                              <div
-                                key={`${task._id}-${displayIndex}`}
-                                className="flex items-center gap-3 p-2 rounded hover:bg-slate-600/20 transition-colors"
+                          .map((item, displayIndex) => (
+                            <div
+                              key={`${task._id}-${displayIndex}`}
+                              className="flex items-center gap-3 p-2 rounded hover:bg-slate-600/20 transition-colors duration-200"
+                            >
+                              <button
+                                onClick={() => handleRoadmapItemToggle(task._id, displayIndex, item.completed)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                                  item.completed
+                                    ? "bg-purple-500 border-purple-500 scale-110"
+                                    : "border-gray-400 hover:border-purple-400 hover:scale-105"
+                                }`}
                               >
-                                <button
-                                  onClick={() => handleRoadmapItemToggle(task._id, displayIndex, item.completed)}
-                                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                                    item.completed
-                                      ? "bg-purple-500 border-purple-500"
-                                      : "border-gray-400 hover:border-purple-400"
-                                  }`}
-                                >
-                                  {item.completed && (
-                                    <CheckCircleIcon className="w-3 h-3 text-white" />
-                                  )}
-                                </button>
-                                <span
-                                  className={`text-sm flex-1 ${
-                                    item.completed
-                                      ? "text-gray-400 line-through"
-                                      : "text-gray-300"
-                                  }`}
-                                >
-                                  {item.text}
-                                </span>
-                              </div>
-                            );
-                          })}
+                                {item.completed && (
+                                  <CheckCircleIcon className="w-3 h-3 text-white" />
+                                )}
+                              </button>
+                              <span
+                                className={`text-sm flex-1 transition-all duration-300 ${
+                                  item.completed
+                                    ? "text-gray-400 line-through"
+                                    : "text-gray-300"
+                                }`}
+                              >
+                                {item.text}
+                              </span>
+                            </div>
+                          ))}
 
                         {/* Show more button if there are more than 3 items */}
                         {task.roadmapItems.length > 3 && expandedTask !== task._id && (
                           <button
                             onClick={() => setExpandedTask(task._id)}
-                            className="text-purple-400 text-sm hover:text-purple-300 transition-colors"
+                            className="text-purple-400 text-sm hover:text-purple-300 transition-colors duration-200"
                           >
                             +{task.roadmapItems.length - 3} more items...
                           </button>
@@ -248,7 +285,7 @@ const TaskList = ({
                   
                   {/* Expanded Content */}
                   {expandedTask === task._id && (
-                    <div className="border-t border-gray-600/30 pt-3 mt-3 space-y-4">
+                    <div className="border-t border-gray-600/30 pt-3 mt-3 space-y-4 animate-in slide-in-from-top-2 duration-300">
                       {task.description && (
                         <div>
                           <h4 className="text-purple-400 font-medium mb-2">Description</h4>

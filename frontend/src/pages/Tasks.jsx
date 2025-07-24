@@ -48,7 +48,6 @@ const Tasks = () => {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-<<<<<<< HEAD
       {/* Mystical Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(120,_119,_198,_0.3),_transparent_50%)]"></div>
@@ -83,9 +82,6 @@ const Tasks = () => {
         </div>
       </div>
 
-=======
-      
->>>>>>> a0e385dd3d5c8a5d83870937b1e8d7f743e0ec62
       {/* Main Content */}
       <div className="relative z-10 h-full flex gap-6 p-6 pt-20">
         {/* Left Side - Task Creation */}

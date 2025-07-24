@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import WelcomeBanner from "../components/WelcomeBanner";
 import StatCard from "../components/StatCard";
@@ -9,48 +10,123 @@ import TermsAndConditions from "../components/TermsAndConditions";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState({
+    tasks: [],
+    analytics: null,
+    loading: true
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch both tasks and analytics data
+      const [tasksResponse, analyticsResponse] = await Promise.all([
+        fetch('/api/ai/tasks', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch('/api/ai/analytics', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        })
+      ]);
+
+      const tasksData = await tasksResponse.json();
+      const analyticsData = await analyticsResponse.json();
+
+      setDashboardData({
+        tasks: tasksData.success ? tasksData.data.tasks : [],
+        analytics: analyticsData.success ? analyticsData.data : null,
+        loading: false
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setDashboardData(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleNewTask = () => {
+    navigate('/tasks');
+  };
+
+  const handleDiscover = () => {
+    navigate('/analytics');
+  };
+
+  // Calculate real-time stats
+  const inProgressTasks = dashboardData.tasks.filter(task => !task.completed).length;
+  const completedTasks = dashboardData.tasks.filter(task => task.completed).length;
+  const totalTasks = dashboardData.tasks.length;
+  
+  const inProgressPercent = totalTasks > 0 ? Math.round((inProgressTasks / totalTasks) * 100) : 0;
+  const completedPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  // Get upcoming tasks (next 3 incomplete tasks)
+  const upcomingTasks = dashboardData.tasks
+    .filter(task => !task.completed)
+    .slice(0, 3)
+    .map(task => ({
+      title: task.title,
+      date: task.createdAt ? new Date(task.createdAt).toLocaleDateString() : 'No date',
+      priority: task.priority
+    }));
 
   return (
-    <div className="flex flex-col h-full min-h-0 p-3 gap-3 overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 p-4 gap-3 overflow-hidden">
       {/* Top row: WelcomeBanner and StatCards */}
-      <div className="flex flex-row gap-3 items-stretch w-full min-h-[180px]">
+      <div className="flex flex-row gap-4 items-stretch w-full h-[140px]">
         <div className="flex-1 min-w-0">
-          <WelcomeBanner user={user} />
+          <WelcomeBanner 
+            user={user} 
+            onNewTask={handleNewTask}
+            onDiscover={handleDiscover}
+          />
         </div>
         <div className="flex flex-row gap-3 items-stretch">
           <StatCard
-            title="In-progress Tasks"
-            value={6}
-            total={12}
-            percent={60}
-            color="#9333ea"
+            title="In Progress"
+            value={inProgressTasks}
+            total={totalTasks}
+            percent={inProgressPercent}
+            color="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            loading={dashboardData.loading}
           />
           <StatCard
-            title="Completed Tasks"
-            value={15}
-            total={26}
-            percent={90}
-            color="#3b82f6"
+            title="Completed"
+            value={completedTasks}
+            total={totalTasks}
+            percent={completedPercent}
+            color="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+            loading={dashboardData.loading}
           />
         </div>
       </div>
-      {/* Second row: ProgressChart/TermsAndConditions and UpcomingTasks/TeamSummary */}
-      <div className="flex flex-row gap-3 w-full flex-1 min-h-0">
-        {/* Left: ProgressChart (top) and TermsAndConditions (bottom) */}
+      {/* Second row: Main content grid */}
+      <div className="flex flex-row gap-4 w-full flex-1 min-h-0">
+        {/* Left: ProgressChart (large) */}
         <div className="flex-1 min-w-0 flex flex-col gap-3 min-h-0 h-full">
-          <div className="h-3/4 min-h-[180px]">
-            <ProgressChart />
+          <div className="flex-1 min-h-[200px]">
+            <ProgressChart 
+              data={dashboardData.analytics?.progressOverTime || []}
+              loading={dashboardData.loading}
+            />
           </div>
-          <div className="h-1/4 min-h-[60px] flex items-end">
+          <div className="h-16">
             <TermsAndConditions />
           </div>
         </div>
-        {/* Right: UpcomingTasks (top) and TeamSummary (bottom) */}
-        <div className="w-[350px] min-w-[300px] flex flex-col gap-3 min-h-0 h-full">
-          <div className="h-3/4 min-h-[180px]">
-            <UpcomingTasks />
+        
+        {/* Right: UpcomingTasks (large) */}
+        <div className="w-[320px] min-w-[280px] flex flex-col gap-3 min-h-0 h-full">
+          <div className="flex-1 min-h-[200px]">
+            <UpcomingTasks 
+              tasks={upcomingTasks}
+              loading={dashboardData.loading}
+            />
           </div>
-          <div className="h-1/4 min-h-[60px] flex items-end">
+          <div className="h-16">
             <TeamSummary />
           </div>
         </div>

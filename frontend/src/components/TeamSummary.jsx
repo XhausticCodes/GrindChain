@@ -8,27 +8,27 @@ const team = [
 ];
 
 const TeamSummary = () => (
-  <div className="blur-theme bg-[#1e1e2f] p-3 flex flex-row items-center justify-center shadow-md rounded-2xl w-full h-[60%] gap-3 min-h-0">
-    <div className="flex items-center mb-1">
-      <div className="flex -space-x-4">
-        {team.map((member, idx) => (
+  <div className="bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm border border-slate-600/20 rounded-lg p-3 shadow-lg w-full h-full flex items-center justify-between gap-3">
+    <div className="flex items-center">
+      <div className="flex -space-x-2">
+        {team.slice(0, 3).map((member, idx) => (
           <img
             key={idx}
             src={member.img}
             alt={member.name}
-            className="w-8 h-8 rounded-full border-2 border-[#1e1e2f] object-cover"
+            className="w-6 h-6 rounded-full border-2 border-slate-800 object-cover shadow-sm"
             style={{ zIndex: 10 - idx }}
           />
         ))}
         <span
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#9333ea] text-white text-xs font-bold border-2 border-[#1e1e2f]"
+          className="w-6 h-6 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold border-2 border-slate-800 shadow-sm"
           style={{ zIndex: 6 }}
         >
-          +12
+          +9
         </span>
       </div>
     </div>
-    <div className="text-white text-base font-semibold">52H in a week</div>
+    <div className="text-slate-300 text-xs font-medium">🏠 Team: 42H/week</div>
   </div>
 );
 

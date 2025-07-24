@@ -1,9 +1,9 @@
 import React from "react";
 
 const TermsAndConditions = () => (
-  <div className="blur-theme bg-[#1e1e2f] rounded-2xl p-3 shadow-md w-full h-[60%] flex items-center justify-center min-h-0">
-    <span className="text-white text-base font-medium text-center">
-      Terms and Conditions (Coming Soon)
+  <div className="bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm border border-slate-600/20 rounded-lg p-3 shadow-lg w-full h-full flex items-center justify-center">
+    <span className="text-slate-400 text-xs font-medium text-center flex items-center gap-2">
+      📜 Terms & Conditions • Coming Soon
     </span>
   </div>
 );

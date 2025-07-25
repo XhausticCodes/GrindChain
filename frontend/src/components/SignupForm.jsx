@@ -74,6 +74,7 @@ const SignupForm = () => {
       )}
       <div className="relative text-sm">
         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
+          {/* Simple user silhouette icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -85,7 +86,7 @@ const SignupForm = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196z"
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
             />
           </svg>
         </span>
@@ -100,6 +101,7 @@ const SignupForm = () => {
       </div>
       <div className="relative text-sm">
         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
+          {/* Mail icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -111,7 +113,7 @@ const SignupForm = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M16 12a4 4 0 01-8 0m8 0V8a4 4 0 10-8 0v4m8 0a4 4 0 01-8 0"
+              d="M3 8l7.89 5.26a3 3 0 003.22 0L22 8m-19 8V8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
             />
           </svg>
         </span>
@@ -126,6 +128,7 @@ const SignupForm = () => {
       </div>
       <div className="relative text-sm">
         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
+          {/* Lock icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -137,7 +140,7 @@ const SignupForm = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 11c0-1.104.896-2 2-2s2 .896 2 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2c0-1.104.896-2 2-2z"
+              d="M12 11c1.104 0 2-.896 2-2V7a2 2 0 10-4 0v2c0 1.104.896 2 2 2zm6 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6a2 2 0 012-2h8a2 2 0 012 2z"
             />
           </svg>
         </span>
@@ -152,6 +155,7 @@ const SignupForm = () => {
       </div>
       <div className="relative text-sm">
         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
+          {/* Lock icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -163,7 +167,7 @@ const SignupForm = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 11c0-1.104.896-2 2-2s2 .896 2 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2c0-1.104.896-2 2-2z"
+              d="M12 11c1.104 0 2-.896 2-2V7a2 2 0 10-4 0v2c0 1.104.896 2 2 2zm6 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6a2 2 0 012-2h8a2 2 0 012 2z"
             />
           </svg>
         </span>

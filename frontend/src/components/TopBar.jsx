@@ -44,14 +44,6 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
       </div>
 
       {/* Right Section */}
-    <header className="blur-theme2 flex justify-between items-center px-6 py-4 bg-card shadow-md rounded-bl-3xl z-99999">
-      {/* Left: Search Bar */}
-      <input
-        type="text"
-        placeholder="Search..."
-        className="bg-dark text-white px-4 py-2 rounded-lg outline-none w-1/3 bg-white/10"
-      />
-      {/* Right: Theme Dropdown and Avatar */}
       <div className="flex items-center gap-4">
         {/* Theme Dropdown */}
         <div className="relative">

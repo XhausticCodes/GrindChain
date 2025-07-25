@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import User from "../models/User.js";
+import mongoose from "mongoose";
 
 const connectToSockets = (server) => {
   const io = new Server(server, {
@@ -17,23 +18,34 @@ const connectToSockets = (server) => {
     socket.on("joinGroup", async ({ groupID, username }) => {
       socket.join(groupID);
       console.log(`${username} joined group ${groupID}`);
+      
       try {
+        // FIX: Create a proper group document first or use the groupID as a string
+        // Since you're using custom groupIDs (not ObjectIds), we need a different approach
+        
+        // Option 1: Store groupID as a simple string field (recommended for your use case)
         const currUser = await User.findOneAndUpdate(
           { username: username },
-          { $set: { groups: groupID } },
+          { 
+            $set: { 
+              // Use a different field for simple group IDs
+              currentGroupId: groupID,
+              // Keep groups array for actual Group ObjectIds
+              // groups: [] // Don't modify this unless you have actual Group documents
+            }
+          },
           { new: true }
         );
+
         if (currUser) {
           console.log(`User ${username} successfully joined group ${groupID}`);
         } else {
           console.error("User not found or failed to update groups");
         }
-        if (!currUser) {
-          console.error("User not found");
-        }
       } catch (error) { 
         console.error("Error joining group:", error);
       }
+      
       socket.to(groupID).emit("userJoined", { username, groupID });
     });
 
@@ -64,12 +76,16 @@ const connectToSockets = (server) => {
           error: "Server error while updating task",
         });
       }
+
+      socket.to(groupID).emit("taskCompleted", { taskID, username });
     });
 
     socket.on("disconnect", () => {
       console.log("A User Disconnected", socket.id);
     });
   });
+
+  return io;
 };
 
 export default connectToSockets;

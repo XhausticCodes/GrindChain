@@ -1,12 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-
-
-const THEME_OPTIONS = [
-  { key: "castle", label: "Magic Castle" },
-  { key: "aurora", label: "Aurora" },
-  { key: "cloudy", label: "Cloudy" },
-
 import { MagnifyingGlassIcon, BellIcon } from "@heroicons/react/24/outline";
 
 const THEME_OPTIONS = [
@@ -15,33 +8,23 @@ const THEME_OPTIONS = [
   { key: "galaxy", label: "Starry Galaxy" },
   { key: "iridescence", label: "Iridescence" },
   { key: "potter", label: "Harry Potter" },
-
 ];
 
 const TopBar = ({ user, onLogout, theme, setTheme }) => {
-  const [open, setOpen] = useState(false);
-  const [userDropdown, setUserDropdown] = useState(false);
-  const dropdownRef = useRef(null);
-  const userDropdownRef = useRef(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  // Close dropdowns on outside click
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
       if (
-        userDropdownRef.current &&
-        !userDropdownRef.current.contains(e.target)
+        !e.target.closest("#user-avatar-dropdown") &&
+        !e.target.closest("#user-avatar-btn")
       ) {
-
-        setUserDropdown(false);
-
         setShowUserDropdown(false);
       }
       if (!e.target.closest("#theme-dropdown-btn") && !e.target.closest("#theme-dropdown")) {
         setShowDropdown(false);
-
       }
     }
     document.addEventListener("mousedown", handleClick);
@@ -63,18 +46,12 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
       {/* Right Section */}
       <div className="flex items-center gap-4">
         {/* Theme Dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative">
           <button
-
-            className="flex items-center gap-2 px-3 py-2 bg-yellow-600 text-white rounded-lg shadow hover:from-yellow-500 hover:to-amber-700 transition-all focus:outline-none cursor-pointer"
-            onClick={() => setOpen((prev) => !prev)}
-
+            id="theme-dropdown-btn"
             className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-700 text-white rounded-lg shadow transition-all focus:outline-none"
             onClick={() => setShowDropdown((prev) => !prev)}
-
             type="button"
-            aria-haspopup="listbox"
-            aria-expanded={open}
           >
             <span className="font-semibold text-xs">🎨 Theme</span>
             <svg
@@ -91,40 +68,6 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
               />
             </svg>
           </button>
-
-          {open && (
-            <ul
-              className="absolute right-0 mt-2 w-40 text-black bg-white rounded-lg shadow-lg z-20 border border-gray-200 animate-fade-in"
-              role="listbox"
-            >
-              {THEME_OPTIONS.map((option) => (
-                <li
-                  key={option.key}
-                  role="option"
-                  aria-selected={theme === option.key}
-                  className={`px-4 py-2 hover:bg-yellow-500 cursor-pointer flex items-center rounded-lg gap-2 ${
-                    theme === option.key
-                      ? "bg-yellow-200 font-bold text-yellow-800"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setTheme(option.key);
-                    setOpen(false);
-                  }}
-                >
-                  {option.label}
-                  {theme === option.key && <span className="ml-auto">✓</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        {/* Avatar Dropdown */}
-        <div className="relative" ref={userDropdownRef}>
-          <button
-            id="user-avatar-btn"
-            className="focus:outline-none cursor-pointer"
-            onClick={() => setUserDropdown((prev) => !prev)}
 
           {showDropdown && (
             <div 
@@ -174,7 +117,6 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
             id="user-avatar-btn"
             className="focus:outline-none cursor-pointer relative group"
             onClick={() => setShowUserDropdown((prev) => !prev)}
-
             type="button"
           >
             {user?.avatar ? (
@@ -194,45 +136,6 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
             {/* Magical glow effect on hover */}
             <div className="absolute inset-0 rounded-full bg-yellow-400/20 opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-300"></div>
           </button>
-
-          {userDropdown && (
-            <div
-              id="user-avatar-dropdown"
-              className="absolute right-0 mt-2 min-w-[12rem] max-w-[18rem] bg-white rounded-xl shadow-2xl z-30 border border-gray-200 animate-fade-in flex flex-col overflow-hidden"
-              role="menu"
-              tabIndex={-1}
-              aria-label="User menu"
-            >
-              {/* User Info Section */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-yellow-50">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt="avatar"
-                    className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400 shadow"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-3xl">
-                    🧙🏻‍♂️
-                  </div>
-                )}
-                <div className="flex flex-col min-w-0">
-                  <span
-                    className="font-bold text-yellow-800 truncate"
-                    title={user?.username || "User"}
-                  >
-                    {user?.username || "User"}
-                  </span>
-                  {user?.email && (
-                    <span
-                      className="text-xs text-gray-500 truncate"
-                      title={user.email}
-                    >
-                      {user.email}
-                    </span>
-                  )}
-                </div>
-
           
           {showUserDropdown && (
             <div
@@ -252,35 +155,13 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
                 >
                   {user?.username || "User"}
                 </NavLink>
-
               </div>
-              {/* Menu Options */}
-              <NavLink
-                to="/profile"
-                onClick={() => setUserDropdown(false)}
-                className={({ isActive }) =>
-                  `block px-5 py-2 text-left w-full text-sm font-medium bg-yellow-200 transition-colors cursor-pointer outline-none hover:bg-yellow-300 focus:bg-yellow-400 border-b border-gray-100 last:border-b-0 ${
-                    isActive ? "text-yellow-800 bg-yellow-200" : "text-gray-800"
-                  }`
-                }
-                role="menuitem"
-                tabIndex={0}
-              >
-                Profile
-              </NavLink>
               <button
-
-                onClick={onLogout}
-                className="block px-5 py-2 text-left w-full text-sm font-semibold text-white bg-red-500 hover:bg-red-700 focus:bg-red-600 transition-colors rounded-b-xl cursor-pointer"
-                role="menuitem"
-                tabIndex={0}
-
                 onClick={() => {
                   onLogout();
                   setShowUserDropdown(false);
                 }}
                 className="w-full text-center px-4 py-2 text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-b-lg transition-all font-semibold cursor-pointer text-sm"
-
               >
                 Logout
               </button>

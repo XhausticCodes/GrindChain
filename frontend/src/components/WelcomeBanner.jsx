@@ -19,13 +19,13 @@ const WelcomeBanner = ({ user, onNewTask, onDiscover }) => {
           <div className="flex gap-2">
             <button 
               onClick={onNewTask}
-              className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-semibold px-4 py-2 rounded-lg text-xs shadow-lg hover:shadow-yellow-400/25 hover:scale-105 transform transition-all duration-200"
+              className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-semibold px-4 py-2 rounded-lg text-xs shadow-lg hover:shadow-yellow-400/25 hover:scale-105 transform transition-all duration-200 cursor-pointer"
             >
               ⚡ New Task
             </button>
             <button 
               onClick={onDiscover}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-400/50 text-white px-4 py-2 rounded-lg text-xs hover:shadow-purple-400/25 hover:scale-105 transform transition-all duration-200"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-400/50 text-white px-4 py-2 rounded-lg text-xs hover:shadow-purple-400/25 hover:scale-105 transform transition-all duration-200 cursor-pointer"
             >
               🔮 Discover
             </button>

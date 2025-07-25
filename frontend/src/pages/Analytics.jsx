@@ -23,6 +23,7 @@ import {
   Bar,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import whiteOwl from "../assets/whiteOwl.png";
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -54,13 +55,20 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="relative h-full w-full overflow-hidden ">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(120,_119,_198,_0.3),_transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,_rgba(147,_51,_234,_0.2),_transparent_50%)]"></div>
-        </div>
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="relative h-full w-full overflow-hidden flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <img
+            src={whiteOwl}
+            alt="Loading Owl"
+            className="w-60 h-60 animate-bounce-rotate-slow drop-shadow-2xl"
+            style={{ filter: "drop-shadow(0 0 32px #fff8)" }}
+          />
+          <p
+            className="mt-6 text-6xl font-bold text-yellow-500 animate-pulse"
+            style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
+          >
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -69,10 +77,10 @@ const Analytics = () => {
   if (!analytics) {
     return (
       <div className="relative h-full w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
+        {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(120,_119,_198,_0.3),_transparent_50%)]"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,_rgba(147,_51,_234,_0.2),_transparent_50%)]"></div>
-        </div>
+        </div> */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <ChartBarIcon className="w-16 h-16 text-purple-400/50 mx-auto mb-4" />
@@ -129,7 +137,7 @@ const Analytics = () => {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h1
-              className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-900 bg-clip-text text-transparent mb-2 tracking-wider"
+              className="text-3xl  font-bold bg-gradient-to-br from-yellow-400 to-yellow-600 bg-clip-text text-transparent mb-2 tracking-wider analytics-glow"
               style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
             >
               TASK ANALYTICS DASHBOARD
@@ -144,9 +152,7 @@ const Analytics = () => {
                 <div className="flex items-center gap-3">
                   <FireIcon className="w-8 h-8 text-orange-400" />
                   <p className="text-gray-400 text-sm">Total Streak</p>
-                  <p className="text-2xl font-bold text-white">
-                    {user.streak}
-                  </p>
+                  <p className="text-2xl font-bold text-white">{user.streak}</p>
                 </div>
               </div>
             </div>

@@ -1,135 +1,146 @@
-# GrindChain
-# Task Management Application 🚀
+# GrindChain - Task Management Application 🚀
 
-This project is a comprehensive task management application designed to help users efficiently organize, prioritize, and track their tasks. It features a user-friendly interface built with React, a robust backend API, and real-time communication capabilities using Socket.IO. The application provides features like user authentication, AI-powered task generation, progress tracking, and team collaboration tools.
+![GrindChain Banner](https://iili.io/Fk8Exv2.png)
 
-## 🚀 Key Features
+GrindChain is a comprehensive task management application designed to help users efficiently organize, prioritize, and track tasks. It features a user-friendly interface built with React, real-time updates, and AI-powered automation.
 
-- **User Authentication:** Secure login, signup, and logout functionality using JWT and cookie-based session management.
-- **AI-Powered Task Generation:** An AI chatbot assists users in creating tasks based on natural language input.
-- **Real-time Communication:** Socket.IO enables real-time updates for tasks, chat messages, and notifications.
-- **Dashboard Overview:** A personalized dashboard displays key statistics, upcoming tasks, and team summaries.
-- **Task Management:** Users can create, update, delete, and track the progress of their tasks.
-- **Profile Management:** Users can view and edit their profile information, including avatar and description.
-- **Chatroom:** Real-time chat functionality for individual and group conversations.
-- **Analytics:** Visual representation of user and team performance through charts and graphs.
-- **Responsive Design:** The application is designed to be responsive and accessible on various devices.
-- **Protected Routes:** Ensures that only authenticated users can access certain parts of the application.
-- **Lazy Loading:** Improves initial load time by loading components only when they are needed.
+## 🌟 Key Features
+
+- **User Authentication**: Secure login, signup, and logout using JWT and cookies
+- **AI-Powered Task Generation**: AI chatbot assists in creating tasks from natural language
+- **Real-time Communication**: Socket.IO enables live updates for tasks and notifications
+- **Dashboard**: Personalized overview with statistics and upcoming tasks
+- **Task Management**: Create, update, delete, and track progress of tasks
+- **Profile Management**: Edit/view your profile, avatar, and description
+- **Chatroom**: Real-time chat for individuals and groups
+- **Analytics**: Visual performance insights with charts and graphs
+- **Responsive Design**: Fully functional across all devices
+- **Protected Routes**: Auth-gated pages with lazy loading for optimal performance
 
 ## 🛠️ Tech Stack
 
-- **Frontend:**
-    - React
-    - React Router DOM
-    - Tailwind CSS
-    - Heroicons
-    - Heroui (@heroui/calendar, @heroui/system, @heroui/theme)
-    - Framer Motion
-    - GSAP
-    - OGL
-    - React Circular Progressbar
-    - Recharts
-    - Socket.IO Client
-    - Vite
-- **Backend:** (Not detailed in provided summaries, but implied)
-    - Node.js (Likely)
-    - Express.js (Likely)
-    - Socket.IO (Likely)
-- **Authentication:**
-    - JWT (JSON Web Tokens)
-- **Build Tool:**
-    - Vite
-- **Linting:**
-    - ESLint
-- **Other:**
-    - TypeScript (Types for React)
+### Frontend
+- **Framework**: React with React Router DOM
+- **Styling**: Tailwind CSS, Heroicons, Heroui
+- **Animation**: Framer Motion, GSAP, OGL
+- **Visualization**: React Circular Progressbar, Recharts
+- **Real-time**: Socket.IO Client
+- **Build Tool**: Vite
 
-## 📦 Getting Started / Setup Instructions
+### Backend
+- **Runtime**: Node.js with Express.js
+- **Real-time**: Socket.IO
+- **Database**: MongoDB
+- **Authentication**: JWT (JSON Web Tokens)
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js (>=16)
-- npm
+- Node.js (>=16.x)
+- npm (>=8.x)
+- MongoDB Atlas account or local MongoDB instance
 
 ### Installation
 
-1.  Clone the repository:
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/GrindChain.git
+cd GrindChain
+```
 
-    ```bash
-    git clone <repository-url>
-    cd frontend
-    ```
+2. Install dependencies for both frontend and backend:
+```bash
+cd frontend && npm install
+cd ../backend && npm install
+```
 
-2.  Install dependencies:
+3. Set up environment variables (see below)
 
-    ```bash
-    npm install
-    ```
+### Running the Application
 
-### Running Locally
+1. Start the backend server:
+```bash
+cd backend
+npm run dev
+```
 
-1.  Start the development server:
+2. Start the frontend development server:
+```bash
+cd frontend
+npm run dev
+```
 
-    ```bash
-    npm run dev
-    ```
+The application should now be running:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5001
 
-    This will start the frontend development server, typically on `http://localhost:5173`.  Make sure your backend is running as well, likely on `http://localhost:5001` as configured in `vite.config.js`.
+## 🔐 Environment Configuration
+
+Create a `.env` file in the `backend` directory with the following variables:
+
+```env
+# Server Configuration
+PORT=5001
+FRONTEND_URL=http://localhost:5173
+
+# Authentication
+JWT_SECRET=your_secure_jwt_secret
+JWT_EXPIRE=24h
+
+# Database
+MONGODB_URI=your_mongodb_connection_string
+
+# AI Services
+GEMINI_API_KEY=your_gemini_api_key
+```
 
 ## 📂 Project Structure
 
 ```
-frontend/
-├── src/
-│   ├── App.jsx             # Main application component
-│   ├── main.jsx            # Entry point for React
-│   ├── routes.jsx          # Defines application routes
-│   ├── index.css           # Global styles
-│   ├── contexts/
-│   │   └── AuthContext.jsx   # Authentication context
-│   ├── pages/
-│   │   ├── LoginPage.jsx     # Login page
-│   │   ├── SignupPage.jsx    # Signup page
-│   │   ├── Dashboard.jsx     # Dashboard page
-│   │   ├── Tasks.jsx         # Tasks page
-│   │   ├── Analytics.jsx     # Analytics page (Lazy Loaded)
-│   │   ├── Chatroom.jsx      # Chatroom page
-│   │   ├── Notifications.jsx # Notifications page (Lazy Loaded)
-│   │   ├── Profile.jsx       # Profile page
-│   │   ├── GroupChat.jsx     # Group Chat page (Lazy Loaded)
-│   │   └── CreateGroup.jsx   # Create Group page (Lazy Loaded)
-│   ├── components/
-│   │   ├── Layout.jsx        # Layout component
-│   │   ├── chatroom/         # Chatroom related components
-│   │   ├── tasks/            # Task related components
-│   │   └── profile/          # Profile related components
-│   ├── assets/             # Static assets (images, etc.)
-│   └── API/
-│   │   └── socketApi.js      # Socket.IO API (MISSING)
-│   └── ...
-├── vite.config.js        # Vite configuration
-├── package.json          # Project dependencies and scripts
-├── public/               # Public assets
-└── ...
+GrindChain/
+├── backend/                  # Backend server code
+│   ├── controllers/          # Route controllers
+│   ├── models/               # MongoDB models
+│   ├── routes/               # API routes
+│   ├── utils/                # Utility functions
+│   ├── app.js                # Express app configuration
+│   ├── server.js             # Server entry point
+│   └── .env                  # Environment variables
+│
+├── frontend/                 # Frontend React application
+│   ├── public/               # Static assets
+│   ├── src/
+│   │   ├── API/              # API communication
+│   │   ├── assets/           # Images, icons, etc.
+│   │   ├── components/       # Reusable components
+│   │   ├── contexts/         # React contexts
+│   │   ├── pages/            # Application pages
+│   │   ├── App.jsx           # Main app component
+│   │   └── main.jsx          # Entry point
+│   ├── vite.config.js        # Vite configuration
+│   └── package.json
+│
+├── .gitignore
+└── README.md
 ```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions! Please follow these steps:
 
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with descriptive messages.
-4.  Push your changes to your fork.
-5.  Submit a pull request to the main repository.
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
 ## 📬 Contact
 
-If you have any questions or suggestions, feel free to contact me at [thakralgarvit1@gmail.com](mailto:thakralgarvit1@gmail.com).
+For questions or suggestions, please contact:
 
-## 💖 Thanks Message
+- **Garvit Thakral** - [thakralgarvit1@gmail.com](mailto:thakralgarvit1@gmail.com)
+- **GitHub**: [@garvitthakral](https://github.com/garvitthakral)
 
-Thank you for checking out this project! I hope it helps you manage your tasks more efficiently. Your feedback and contributions are highly appreciated.
+## 📄 License
 
-This is written by [readme.ai](https://readme-generator-phi.vercel.app/).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

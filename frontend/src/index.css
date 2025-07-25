@@ -118,3 +118,14 @@
 .music-spin {
   animation: rotate-slow 2s linear infinite;
 }
+
+body, html, * {
+  cursor: url('./assets/magicStickFinal.png') 16 0, auto !important;
+}
+
+.cursor-pointer,
+[style*='cursor: pointer'],
+*[cursor='pointer'],
+*:active {
+  cursor: url('./assets/magicStickHit.png') 16 0, pointer !important;
+}

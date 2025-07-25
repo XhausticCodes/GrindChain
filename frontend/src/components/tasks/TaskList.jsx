@@ -26,40 +26,6 @@ const TaskList = ({
     setOptimisticTasks(tasks);
   }, [tasks]);
 
-  const handleRoadmapItemToggle = useCallback(async (taskId, itemIndex, currentStatus) => {
-    const newStatus = !currentStatus;
-    const updateKey = `${taskId}-${itemIndex}`;
-    
-    // Prevent duplicate updates
-    if (pendingUpdates.has(updateKey)) {
-      return;
-    }
-
-    // Add to pending updates
-    setPendingUpdates(prev => new Set(prev).add(updateKey));
-    
-    console.log("Checkbox toggle:", {
-      taskId,
-      itemIndex,
-      currentStatus,
-      newStatus,
-      isAIGenerated: optimisticTasks.find(t => t._id === taskId)?.aiGenerated
-    });
-
-    // 1. IMMEDIATE optimistic update (instant visual feedback)
-    setOptimisticTasks(prevTasks => 
-      prevTasks.map(task => {
-        if (task._id === taskId) {
-          // Ensure roadmapItems exists and is an array
-          if (!task.roadmapItems || !Array.isArray(task.roadmapItems)) {
-            console.warn("Invalid roadmapItems structure for task:", task.title);
-            return task;
-          }
-
-          // Check if itemIndex is valid
-          if (itemIndex < 0 || itemIndex >= task.roadmapItems.length) {
-            console.warn("Invalid itemIndex:", itemIndex, "for task:", task.title);
-            return task;
   const handleRoadmapItemToggle = useCallback(
     async (taskId, itemIndex, currentStatus) => {
       const newStatus = !currentStatus;
@@ -216,6 +182,7 @@ const TaskList = ({
           </button>
         </div>
       </div>
+      
       {/* Task List */}
       <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-indigo-500/30 overflow-y-auto scrollbar-none hide-scrollbar">
         {loading ? (
@@ -232,9 +199,8 @@ const TaskList = ({
           </div>
         ) : (
           <div className="p-4 space-y-3">
-            {tasksToRender.map((task, index) => {
-              // Validate task structure
             {tasksToRender.map((task) => {
+              // Validate task structure
               if (!task || !task._id) {
                 console.warn("Invalid task structure:", task);
                 return null;
@@ -326,6 +292,7 @@ const TaskList = ({
                         </button>
                       </div>
                     </div>
+                    
                     {/* Interactive Roadmap Items Section */}
                     {task.roadmapItems && Array.isArray(task.roadmapItems) && task.roadmapItems.length > 0 && (
                       <div className="mb-3">
@@ -390,89 +357,7 @@ const TaskList = ({
                         </div>
                       </div>
                     )}
-                    {/* Interactive Roadmap Items Section */}
-                    {task.roadmapItems &&
-                      Array.isArray(task.roadmapItems) &&
-                      task.roadmapItems.length > 0 && (
-                        <div className="mb-3">
-                          <div className="space-y-2">
-                            {task.roadmapItems
-                              .slice(
-                                0,
-                                expandedTask === task._id
-                                  ? task.roadmapItems.length
-                                  : 3
-                              )
-                              .map((item, displayIndex) => {
-                                const updateKey = `${task._id}-${displayIndex}`;
-                                const isPending = pendingUpdates.has(updateKey);
-                                if (!item || typeof item.text !== "string") {
-                                  console.warn(
-                                    "Invalid roadmap item:",
-                                    item,
-                                    "for task:",
-                                    task.title
-                                  );
-                                  return null;
-                                }
-                                return (
-                                  <div
-                                    key={`${task._id}-${displayIndex}`}
-                                    className="flex items-center gap-3 p-2 rounded hover:bg-slate-600/20 transition-colors duration-200"
-                                  >
-                                    <button
-                                      onClick={() =>
-                                        handleRoadmapItemToggle(
-                                          task._id,
-                                          displayIndex,
-                                          item.completed
-                                        )
-                                      }
-                                      disabled={isPending}
-                                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-                                        item.completed
-                                          ? "bg-purple-500 border-purple-500 scale-110"
-                                          : "border-gray-400 hover:border-purple-400 hover:scale-105"
-                                      } ${
-                                        isPending
-                                          ? "opacity-50 cursor-not-allowed"
-                                          : ""
-                                      }`}
-                                    >
-                                      {item.completed && (
-                                        <CheckCircleIcon className="w-3 h-3 text-white" />
-                                      )}
-                                    </button>
-                                    <span
-                                      className={`text-sm flex-1 transition-all duration-300 ${
-                                        item.completed
-                                          ? "text-gray-400 line-through"
-                                          : "text-gray-300"
-                                      } ${isPending ? "opacity-70" : ""}`}
-                                    >
-                                      {item.text}
-                                      {isPending && (
-                                        <span className="ml-2 text-yellow-400 text-xs">
-                                          ⏳
-                                        </span>
-                                      )}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            {/* Show more button if there are more than 3 items */}
-                            {task.roadmapItems.length > 3 &&
-                              expandedTask !== task._id && (
-                                <button
-                                  onClick={() => setExpandedTask(task._id)}
-                                  className="text-purple-400 text-sm hover:text-purple-300 transition-colors duration-200"
-                                >
-                                  +{task.roadmapItems.length - 3} more items...
-                                </button>
-                              )}
-                          </div>
-                        </div>
-                      )}
+                    
                     {/* Expanded Content */}
                     {expandedTask === task._id && (
                       <div className="border-t border-gray-600/30 pt-3 mt-3 space-y-4 animate-in slide-in-from-top-2 duration-300">
@@ -526,6 +411,7 @@ const TaskList = ({
           </div>
         )}
       </div>
+      
       {/* Footer */}
       <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur-sm border border-indigo-500/30 rounded-b-2xl p-4">
         <div className="text-center text-sm text-gray-400">

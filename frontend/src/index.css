@@ -114,3 +114,7 @@
 .animate-rotate-slow {
   animation: rotate-slow 2.5s linear infinite;
 }
+
+.music-spin {
+  animation: rotate-slow 2s linear infinite;
+}

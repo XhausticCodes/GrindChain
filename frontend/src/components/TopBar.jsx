@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import farewellToDobby from "../assets/music/25 - Farewell To Dobby - Harry Potter and the Deathly Hallows Soundtrack (Alexandre Desplat).mp3";
+import harrysWondrousWorld from "../assets/music/Harry's Wondrous World (Extended Version).mp3";
+import theArrivalOfBabyHarry from "../assets/music/The Arrival of Baby Harry.mp3";
+import leavingHogwarts from "../assets/music/Leaving Hogwarts.mp3";
+import musicPlayerLogo from "../assets/musicplayerlogo.jpg";
 
 const THEME_OPTIONS = [
   { key: "castle", label: "Magic Castle" },
@@ -7,11 +12,81 @@ const THEME_OPTIONS = [
   { key: "cloudy", label: "Hogwarts Library" },
 ];
 
+const MUSIC_FILES = [
+  {
+    name: "Leaving Hogwarts",
+    src: leavingHogwarts,
+  },
+  {
+    name: "Farewell To Dobby",
+    src: farewellToDobby,
+  },
+  {
+    name: "Harry's Wondrous World (Extended Version)",
+    src: harrysWondrousWorld,
+  },
+  {
+    name: "The Arrival of Baby Harry",
+    src: theArrivalOfBabyHarry,
+  },
+];
+
 const TopBar = ({ user, onLogout, theme, setTheme }) => {
   const [open, setOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const audioRef = useRef(null);
+
+  const playPause = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying((prev) => !prev);
+  };
+
+  const playNext = () => {
+    setCurrentTrack((prev) => (prev + 1) % MUSIC_FILES.length);
+    setIsPlaying(true);
+  };
+
+  const playPrev = () => {
+    setCurrentTrack(
+      (prev) => (prev - 1 + MUSIC_FILES.length) % MUSIC_FILES.length
+    );
+    setIsPlaying(true);
+  };
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.onended = () => {
+        if (MUSIC_FILES.length === 1) {
+          // Repeat the single song
+          audioRef.current.currentTime = 0;
+          audioRef.current.play();
+        } else {
+          // Go to next song, loop to first if at end
+          setCurrentTrack((prev) => (prev + 1) % MUSIC_FILES.length);
+          setIsPlaying(true);
+        }
+      };
+    }
+  }, [currentTrack]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -40,6 +115,107 @@ const TopBar = ({ user, onLogout, theme, setTheme }) => {
       />
       {/* Right: Theme Dropdown and Avatar */}
       <div className="flex items-center gap-4">
+        {/* Music Player Button */}
+        <div className="relative flex items-center gap-2">
+          <button
+            className="p-0 m-0 bg-transparent border-none outline-none focus:outline-none hover:scale-110 transition-transform duration-200 disabled:opacity-40 cursor-pointer"
+            onClick={playPrev}
+            disabled={MUSIC_FILES.length <= 1}
+            aria-label="Previous song"
+            style={{ zIndex: 2 }}
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 12L18 19V5L8 12Z"
+                fill="#a78bfa"
+                stroke="#6d28d9"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              <rect
+                x="4.5"
+                y="5"
+                width="2"
+                height="14"
+                rx="1"
+                fill="#c4b5fd"
+                stroke="#6d28d9"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </button>
+          <div className="relative group flex items-center justify-center">
+            <img
+              src={musicPlayerLogo}
+              alt="Music Player Logo"
+              className={`w-14 h-14 rounded-full object-fill border-2 border-purple-400 shadow-lg cursor-pointer transition-all duration-300 group-hover:scale-110 group-hover:shadow-purple-400/40 ${
+                isPlaying
+                  ? "ring-4 ring-purple-400/40 animate-pulse music-spin"
+                  : ""
+              }`}
+              onClick={playPause}
+              style={{
+                boxShadow: isPlaying
+                  ? "0 0 12px 4px rgba(121, 18, 224, 0.2), 0 0 20px 6px rgba(18, 66, 224, 0.2)"
+                  : "",
+              }}
+            />
+            {/* Magical glow effect on hover and when playing */}
+            <div
+              className={`absolute inset-0 rounded-full pointer-events-none transition-all duration-300 ${
+                isPlaying
+                  ? "bg-purple-300/30 blur-lg opacity-80"
+                  : "bg-purple-400/20 blur-lg opacity-0 group-hover:opacity-60"
+              }`}
+            ></div>
+            {/* Play/Pause overlay icon removed as per new design */}
+          </div>
+          <button
+            className="p-0 m-0 bg-transparent border-none outline-none focus:outline-none hover:scale-110 transition-transform duration-200 disabled:opacity-40 cursor-pointer"
+            onClick={playNext}
+            disabled={MUSIC_FILES.length <= 1}
+            aria-label="Next song"
+            style={{ zIndex: 2 }}
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16 12L6 5V19L16 12Z"
+                fill="#a78bfa"
+                stroke="#6d28d9"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              <rect
+                x="17.5"
+                y="5"
+                width="2"
+                height="14"
+                rx="1"
+                fill="#c4b5fd"
+                stroke="#6d28d9"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </button>
+          <audio
+            ref={audioRef}
+            src={MUSIC_FILES[currentTrack].src}
+            preload="auto"
+            style={{ display: "none" }}
+          />
+        </div>
         {/* Theme Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button

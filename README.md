@@ -1,6 +1,6 @@
 # GrindChain - Task Management Application 🚀
 
-![GrindChain Banner](https://via.placeholder.com/1200x400?text=GrindChain+Banner) <!-- Replace with actual banner image -->
+![GrindChain Banner](https://iili.io/Fk8Exv2.png)
 
 GrindChain is a comprehensive task management application designed to help users efficiently organize, prioritize, and track tasks. It features a user-friendly interface built with React, real-time updates, and AI-powered automation.
 

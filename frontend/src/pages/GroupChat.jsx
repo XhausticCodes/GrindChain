@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import socketAPI from "../API/socketApi";
+import groupPhoto from "../assets/groupPhoto.jpg";
 
 const GroupChat = () => {
   const { user } = useAuth();
@@ -62,7 +63,7 @@ const GroupChat = () => {
           <div className="px-8 pt-6 pb-2 bg-gradient-to-r from-yellow-400/30 to-yellow-400/10 rounded-tl-3xl shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img
-                src=""
+                src={groupPhoto}
                 alt="GroupPhoto"
                 className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400 bg-yellow-100"
               />

@@ -1,6 +1,3 @@
-Here's a well-structured `README.md` file for your GrindChain project:
-
-```markdown
 # GrindChain - Task Management Application 🚀
 
 ![GrindChain Banner](https://via.placeholder.com/1200x400?text=GrindChain+Banner) <!-- Replace with actual banner image -->
@@ -147,5 +144,3 @@ For questions or suggestions, please contact:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```

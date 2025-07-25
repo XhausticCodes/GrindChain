@@ -11,13 +11,29 @@ import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
 import GroupChat from "./pages/GroupChat";
 import CreateGroup from "./pages/CreateGroup";
+import whiteOwl from "./assets/whiteOwl.png";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 // Loading component
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
-    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-400"></div>
+    <div className="flex flex-col items-center justify-center">
+      <div className="w-40 h-40 rounded-full border-4 border-yellow-400 flex items-center justify-center shadow-2xl">
+        <img
+          src={whiteOwl}
+          alt="Loading Owl"
+          className="w-32 h-32 animate-rotate-slow drop-shadow-2xl"
+          style={{ filter: "drop-shadow(0 0 32px #fff8)" }}
+        />
+      </div>
+      <p
+        className="mt-6 text-4xl font-bold text-yellow-500 animate-pulse"
+        style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
+      >
+        Loading...
+      </p>
+    </div>
   </div>
 );
 

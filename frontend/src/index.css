@@ -36,10 +36,9 @@
 
 /* Custom scrollbar styling */
 .hide-scrollbar {
-  scrollbar-width: thin;
+  scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
-
 .hide-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -55,6 +54,15 @@
 
 .hide-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(139, 92, 246, 0.5);
+}
+
+/* Hide scrollbar only for Upcoming Tasks */
+.hide-scrollbar-upcoming {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.hide-scrollbar-upcoming::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* Magical glow effects */
@@ -74,6 +82,35 @@
 .glass-effect {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Aesthetic glow for Analytics h1 */
+.analytics-glow {
+  position: relative;
+  z-index: 1;
+}
+.analytics-glow::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(251,191,36,0.25) 0%, rgba(239, 223, 2, 0.18) 60%, transparent 100%);
+  filter: blur(16px);
+  z-index: -1;
+  border-radius: 32px;
+  pointer-events: none;
+}
+
+@keyframes rotate-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-rotate-slow {
+  animation: rotate-slow 2.5s linear infinite;
 }

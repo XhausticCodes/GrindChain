@@ -160,7 +160,6 @@ const authController = {
         },
 
         user: { ...user.toObject() },
-
       });
     } catch (error) {
       console.error("Get user error:", error);
@@ -196,22 +195,21 @@ const authController = {
       //StreakLogic
       const now = new Date();
       const lastCheckIn = new Date(user.lastVisited || 0);
-      
+
       const hoursPassed = (now - lastCheckIn) / (1000 * 60 * 60);
       if (hoursPassed >= 24 && hoursPassed < 48) {
         user.streak += 1;
         user.streakChanged = 1; // 1 for change
-      } else if( hoursPassed > 48) {
+      } else if (hoursPassed > 48) {
         user.streak = 0;
         user.streakChanged = 0; // 0 for reset
-      } else if( hoursPassed < 24) {
-        user.streakChanged =  2; // 2 for no change
+      } else if (hoursPassed < 24) {
+        user.streakChanged = 2; // 2 for no change
       }
 
       user.lastVisited = now;
       await user.save();
 
-      //sending user data
       res.json({
         success: true,
         authenticated: true,
@@ -220,23 +218,19 @@ const authController = {
           id: user._id,
           username: user.username,
           email: user.email,
-
-          groupID: user.groups,
-
+          groupID: user.currentGroupId, // Use currentGroupId instead of groups
           avatar: user.avatar,
           description: user.description,
           streak: user.streak,
           lastVisited: user.lastVisited,
           lastCheckinDate: user.lastCheckinDate,
-
           groups: user.groups,
+          currentGroupId: user.currentGroupId, // Include both for compatibility
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
-
           isActive: user.isActive,
           tasks: user.tasks,
           checkinHistory: user.checkinHistory,
-
         },
       });
     } catch (error) {
@@ -255,10 +249,10 @@ const authController = {
       const user = req.user;
       const { description, avatar } = req.body;
 
-      if (typeof description === 'string') {
+      if (typeof description === "string") {
         user.description = description;
       }
-      if (typeof avatar === 'string') {
+      if (typeof avatar === "string") {
         user.avatar = avatar;
       }
 
@@ -266,7 +260,7 @@ const authController = {
 
       res.json({
         success: true,
-        message: 'Profile updated successfully',
+        message: "Profile updated successfully",
         user: {
           id: user._id,
           username: user.username,
@@ -280,10 +274,10 @@ const authController = {
         },
       });
     } catch (error) {
-      console.error('Update profile error:', error);
+      console.error("Update profile error:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update profile',
+        message: "Failed to update profile",
       });
     }
   },

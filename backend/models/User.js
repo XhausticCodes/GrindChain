@@ -48,11 +48,16 @@ const userSchema = new Schema({
     type: Date,
     default: null
   },
-  // FIX: Change groups from String to Array
+  // For actual Group documents (ObjectIds)
   groups: [{
     type: String,
     ref: 'Group'
   }],
+  // NEW: For simple chat room IDs (strings)
+  currentGroupId: {
+    type: String,
+    default: null
+  },
   tasks: [taskSchema],
   checkinHistory: [{
     date: {

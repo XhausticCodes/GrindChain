@@ -17,7 +17,7 @@ const SignupContent = () => {
         CREATE YOUR ACCOUNT
       </h1>
       <p className="mb-4 text-lg text-white/80 text-center">
-        Join GrindChain & Boost your Productivity!
+        Join GrindHub & Boost your Productivity!
       </p>
       <SignupForm />
     </div>

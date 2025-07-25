@@ -157,9 +157,7 @@ const authController = {
           groups: user.groups,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
-        },
-
-        user: { ...user.toObject() },
+        }
       });
     } catch (error) {
       console.error("Get user error:", error);
@@ -192,7 +190,7 @@ const authController = {
         });
       }
 
-      //StreakLogic
+      // Streak Logic
       const now = new Date();
       const lastCheckIn = new Date(user.lastVisited || 0);
 
@@ -200,32 +198,33 @@ const authController = {
       if (hoursPassed >= 24 && hoursPassed < 48) {
         user.streak += 1;
         user.streakChanged = 1; // 1 for change
+        user.lastVisited = now;
       } else if (hoursPassed > 48) {
         user.streak = 0;
         user.streakChanged = 0; // 0 for reset
+        user.lastVisited = now;
       } else if (hoursPassed < 24) {
         user.streakChanged = 2; // 2 for no change
       }
 
-      user.lastVisited = now;
       await user.save();
 
       res.json({
         success: true,
         authenticated: true,
-        streakChanged,
+        streakChanged: user.streakChanged,
         user: {
           id: user._id,
           username: user.username,
           email: user.email,
-          groupID: user.currentGroupId, // Use currentGroupId instead of groups
+          groupID: user.currentGroupId,
           avatar: user.avatar,
           description: user.description,
           streak: user.streak,
           lastVisited: user.lastVisited,
           lastCheckinDate: user.lastCheckinDate,
           groups: user.groups,
-          currentGroupId: user.currentGroupId, // Include both for compatibility
+          currentGroupId: user.currentGroupId,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
           isActive: user.isActive,
@@ -243,7 +242,6 @@ const authController = {
     }
   },
 
-  // PATCH /api/auth/me
   updateMe: async (req, res) => {
     try {
       const user = req.user;

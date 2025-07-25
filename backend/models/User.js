@@ -50,7 +50,7 @@ const userSchema = new Schema({
   },
   // For actual Group documents (ObjectIds)
   groups: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Group'
   }],
   // NEW: For simple chat room IDs (strings)

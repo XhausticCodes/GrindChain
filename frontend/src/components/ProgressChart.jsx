@@ -37,8 +37,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ProgressChart = ({ data, loading = false }) => {
-  console.log("ProgressChart data:", data);
-  console.log("ProgressChart loading:", loading);
 
   if (loading) {
     return (

@@ -60,70 +60,88 @@ const TaskList = ({
           if (itemIndex < 0 || itemIndex >= task.roadmapItems.length) {
             console.warn("Invalid itemIndex:", itemIndex, "for task:", task.title);
             return task;
-          }
-
-          const updatedRoadmapItems = [...task.roadmapItems];
-          updatedRoadmapItems[itemIndex] = {
-            ...updatedRoadmapItems[itemIndex],
-            completed: newStatus
-          };
-
-          // Calculate new progress
-          const completedItems = updatedRoadmapItems.filter(item => item.completed).length;
-          const totalItems = updatedRoadmapItems.length;
-          const newProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-
-          return {
-            ...task,
-            roadmapItems: updatedRoadmapItems,
-            overallProgress: newProgress,
-            completed: newProgress === 100
-          };
-        }
-        return task;
-      })
-    );
-
-    // 2. Backend update (happens in background)
-    try {
-      const response = await fetch(
-        `/api/ai/tasks/${taskId}/roadmap/${itemIndex}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ completed: newStatus }),
-        }
-      );
-
-      const data = await response.json();
-      
-      if (data.success) {
-        console.log("Backend update successful for:", updateKey);
-        // Update parent state with server response
-        if (onTaskUpdated) {
-          onTaskUpdated(data.data.task);
-        }
-      } else {
-        console.error('Failed to update task:', data.message);
-        // Revert optimistic update on error
-        setOptimisticTasks(tasks);
+  const handleRoadmapItemToggle = useCallback(
+    async (taskId, itemIndex, currentStatus) => {
+      const newStatus = !currentStatus;
+      const updateKey = `${taskId}-${itemIndex}`;
+      if (pendingUpdates.has(updateKey)) {
+        return;
       }
-    } catch (error) {
-      console.error("Error updating roadmap item:", error);
-      // Revert optimistic update on error
-      setOptimisticTasks(tasks);
-    } finally {
-      // Remove from pending updates
-      setPendingUpdates(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(updateKey);
-        return newSet;
-      });
-    }
-  }, [onTaskUpdated, tasks, pendingUpdates]);
+      setPendingUpdates((prev) => new Set(prev).add(updateKey));
+      setOptimisticTasks((prevTasks) =>
+        prevTasks.map((task) => {
+          if (task._id === taskId) {
+            if (!task.roadmapItems || !Array.isArray(task.roadmapItems)) {
+              console.warn(
+                "Invalid roadmapItems structure for task:",
+                task.title
+              );
+              return task;
+            }
+            if (itemIndex < 0 || itemIndex >= task.roadmapItems.length) {
+              console.warn(
+                "Invalid itemIndex:",
+                itemIndex,
+                "for task:",
+                task.title
+              );
+              return task;
+            }
+            const updatedRoadmapItems = [...task.roadmapItems];
+            updatedRoadmapItems[itemIndex] = {
+              ...updatedRoadmapItems[itemIndex],
+              completed: newStatus,
+            };
+            const completedItems = updatedRoadmapItems.filter(
+              (item) => item.completed
+            ).length;
+            const totalItems = updatedRoadmapItems.length;
+            const newProgress =
+              totalItems > 0
+                ? Math.round((completedItems / totalItems) * 100)
+                : 0;
+            return {
+              ...task,
+              roadmapItems: updatedRoadmapItems,
+              overallProgress: newProgress,
+              completed: newProgress === 100,
+            };
+          }
+          return task;
+        })
+      );
+      try {
+        const response = await fetch(
+          `/api/ai/tasks/${taskId}/roadmap/${itemIndex}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ completed: newStatus }),
+          }
+        );
+        const data = await response.json();
+        if (data.success) {
+          if (onTaskUpdated) {
+            onTaskUpdated(data.data.task);
+          }
+        } else {
+          setOptimisticTasks(tasks);
+        }
+      } catch {
+        setOptimisticTasks(tasks);
+      } finally {
+        setPendingUpdates((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(updateKey);
+          return newSet;
+        });
+      }
+    },
+    [onTaskUpdated, tasks, pendingUpdates]
+  );
 
   const handleDelete = async (taskId) => {
     try {
@@ -133,7 +151,6 @@ const TaskList = ({
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
       const data = await response.json();
       if (data.success) {
         onTaskDeleted(taskId);
@@ -156,7 +173,6 @@ const TaskList = ({
     }
   };
 
-  // Use optimistic tasks for rendering
   const tasksToRender = optimisticTasks;
 
   return (
@@ -200,7 +216,6 @@ const TaskList = ({
           </button>
         </div>
       </div>
-
       {/* Task List */}
       <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-indigo-500/30 overflow-y-auto scrollbar-none hide-scrollbar">
         {loading ? (
@@ -219,11 +234,11 @@ const TaskList = ({
           <div className="p-4 space-y-3">
             {tasksToRender.map((task, index) => {
               // Validate task structure
+            {tasksToRender.map((task) => {
               if (!task || !task._id) {
                 console.warn("Invalid task structure:", task);
                 return null;
               }
-
               return (
                 <div key={task._id} className="group">
                   <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-4 hover:border-purple-500/50 transition-all duration-300">
@@ -244,11 +259,14 @@ const TaskList = ({
                             </div>
                           )}
                         </div>
-
                         <div className="flex items-center gap-4 text-sm text-gray-400 mb-2">
                           <div className="flex items-center gap-1">
                             <FlagIcon className="w-4 h-4" />
-                            <span className={`bg-gradient-to-r ${getPriorityColor(task.priority)} bg-clip-text text-transparent font-medium`}>
+                            <span
+                              className={`bg-gradient-to-r ${getPriorityColor(
+                                task.priority
+                              )} bg-clip-text text-transparent font-medium`}
+                            >
                               {task.priority}
                             </span>
                           </div>
@@ -263,12 +281,13 @@ const TaskList = ({
                             </div>
                           )}
                         </div>
-
                         {/* Progress Bar */}
                         {task.roadmapItems && task.roadmapItems.length > 0 && (
                           <div className="mb-2">
                             <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs text-gray-400">Progress</span>
+                              <span className="text-xs text-gray-400">
+                                Progress
+                              </span>
                               <span className="text-xs text-gray-400">
                                 {task.overallProgress || 0}%
                               </span>
@@ -276,21 +295,29 @@ const TaskList = ({
                             <div className="w-full bg-gray-700 rounded-full h-2">
                               <div
                                 className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${task.overallProgress || 0}%` }}
+                                style={{
+                                  width: `${task.overallProgress || 0}%`,
+                                }}
                               />
                             </div>
                           </div>
                         )}
                       </div>
-
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setExpandedTask(expandedTask === task._id ? null : task._id)}
+                          onClick={() =>
+                            setExpandedTask(
+                              expandedTask === task._id ? null : task._id
+                            )
+                          }
                           className="text-gray-400 hover:text-purple-400 transition-colors hover:scale-105"
                         >
-                          <ChevronDownIcon className={`w-5 h-5 transition-transform duration-300 ${expandedTask === task._id ? "rotate-180" : ""}`} />
+                          <ChevronDownIcon
+                            className={`w-5 h-5 transition-transform duration-300 ${
+                              expandedTask === task._id ? "rotate-180" : ""
+                            }`}
+                          />
                         </button>
-
                         <button
                           onClick={() => handleDelete(task._id)}
                           className="text-gray-400 hover:text-red-400 transition-colors hover:scale-105"
@@ -299,7 +326,6 @@ const TaskList = ({
                         </button>
                       </div>
                     </div>
-
                     {/* Interactive Roadmap Items Section */}
                     {task.roadmapItems && Array.isArray(task.roadmapItems) && task.roadmapItems.length > 0 && (
                       <div className="mb-3">
@@ -364,21 +390,108 @@ const TaskList = ({
                         </div>
                       </div>
                     )}
-                    
+                    {/* Interactive Roadmap Items Section */}
+                    {task.roadmapItems &&
+                      Array.isArray(task.roadmapItems) &&
+                      task.roadmapItems.length > 0 && (
+                        <div className="mb-3">
+                          <div className="space-y-2">
+                            {task.roadmapItems
+                              .slice(
+                                0,
+                                expandedTask === task._id
+                                  ? task.roadmapItems.length
+                                  : 3
+                              )
+                              .map((item, displayIndex) => {
+                                const updateKey = `${task._id}-${displayIndex}`;
+                                const isPending = pendingUpdates.has(updateKey);
+                                if (!item || typeof item.text !== "string") {
+                                  console.warn(
+                                    "Invalid roadmap item:",
+                                    item,
+                                    "for task:",
+                                    task.title
+                                  );
+                                  return null;
+                                }
+                                return (
+                                  <div
+                                    key={`${task._id}-${displayIndex}`}
+                                    className="flex items-center gap-3 p-2 rounded hover:bg-slate-600/20 transition-colors duration-200"
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        handleRoadmapItemToggle(
+                                          task._id,
+                                          displayIndex,
+                                          item.completed
+                                        )
+                                      }
+                                      disabled={isPending}
+                                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                                        item.completed
+                                          ? "bg-purple-500 border-purple-500 scale-110"
+                                          : "border-gray-400 hover:border-purple-400 hover:scale-105"
+                                      } ${
+                                        isPending
+                                          ? "opacity-50 cursor-not-allowed"
+                                          : ""
+                                      }`}
+                                    >
+                                      {item.completed && (
+                                        <CheckCircleIcon className="w-3 h-3 text-white" />
+                                      )}
+                                    </button>
+                                    <span
+                                      className={`text-sm flex-1 transition-all duration-300 ${
+                                        item.completed
+                                          ? "text-gray-400 line-through"
+                                          : "text-gray-300"
+                                      } ${isPending ? "opacity-70" : ""}`}
+                                    >
+                                      {item.text}
+                                      {isPending && (
+                                        <span className="ml-2 text-yellow-400 text-xs">
+                                          ⏳
+                                        </span>
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            {/* Show more button if there are more than 3 items */}
+                            {task.roadmapItems.length > 3 &&
+                              expandedTask !== task._id && (
+                                <button
+                                  onClick={() => setExpandedTask(task._id)}
+                                  className="text-purple-400 text-sm hover:text-purple-300 transition-colors duration-200"
+                                >
+                                  +{task.roadmapItems.length - 3} more items...
+                                </button>
+                              )}
+                          </div>
+                        </div>
+                      )}
                     {/* Expanded Content */}
                     {expandedTask === task._id && (
                       <div className="border-t border-gray-600/30 pt-3 mt-3 space-y-4 animate-in slide-in-from-top-2 duration-300">
                         {task.description && (
                           <div>
-                            <h4 className="text-purple-400 font-medium mb-2">Description</h4>
-                            <p className="text-gray-300 text-sm">{task.description}</p>
+                            <h4 className="text-purple-400 font-medium mb-2">
+                              Description
+                            </h4>
+                            <p className="text-gray-300 text-sm">
+                              {task.description}
+                            </p>
                           </div>
                         )}
-
                         {/* Milestones */}
                         {task.milestones && task.milestones.length > 0 && (
                           <div>
-                            <h4 className="text-purple-400 font-medium mb-2">Milestones</h4>
+                            <h4 className="text-purple-400 font-medium mb-2">
+                              Milestones
+                            </h4>
                             <div className="space-y-2">
                               {task.milestones.map((milestone, idx) => (
                                 <div
@@ -387,10 +500,15 @@ const TaskList = ({
                                 >
                                   <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
                                   <div className="flex-1">
-                                    <p className="text-white font-medium text-sm">{milestone.title}</p>
+                                    <p className="text-white font-medium text-sm">
+                                      {milestone.title}
+                                    </p>
                                     {milestone.dueDate && (
                                       <p className="text-gray-400 text-xs mt-1">
-                                        Due: {new Date(milestone.dueDate).toLocaleDateString()}
+                                        Due:{" "}
+                                        {new Date(
+                                          milestone.dueDate
+                                        ).toLocaleDateString()}
                                       </p>
                                     )}
                                   </div>
@@ -408,7 +526,6 @@ const TaskList = ({
           </div>
         )}
       </div>
-
       {/* Footer */}
       <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur-sm border border-indigo-500/30 rounded-b-2xl p-4">
         <div className="text-center text-sm text-gray-400">

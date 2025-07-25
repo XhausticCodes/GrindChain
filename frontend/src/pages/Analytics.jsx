@@ -7,6 +7,7 @@ import {
   TrophyIcon,
   CalendarIcon,
   ListBulletIcon,
+  FireIcon,
 } from "@heroicons/react/24/outline";
 import {
   LineChart,
@@ -21,10 +22,12 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { useAuth } from "../contexts/AuthContext";
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchAnalytics();
@@ -123,14 +126,31 @@ const Analytics = () => {
       {/* Content */}
       <div className="relative z-10 h-full overflow-y-auto p-6 scrollbar-none hide-scrollbar">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-900 bg-clip-text text-transparent mb-2 tracking-wider"
-          style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}>
-           TASK ANALYTICS DASHBOARD
-          </h1>
-          <p className="text-gray-200">
-            Track your productivity and task completion metrics
-          </p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1
+              className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-900 bg-clip-text text-transparent mb-2 tracking-wider"
+              style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
+            >
+              TASK ANALYTICS DASHBOARD
+            </h1>
+            <p className="text-gray-200">
+              Track your productivity and task completion metrics
+            </p>
+          </div>
+          <div>
+            <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FireIcon className="w-8 h-8 text-orange-400" />
+                  <p className="text-gray-400 text-sm">Total Streak</p>
+                  <p className="text-2xl font-bold text-white">
+                    {user.streak}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}

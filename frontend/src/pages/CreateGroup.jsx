@@ -3,12 +3,11 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import GroupJoinDialog from "../components/chatroom/GroupJoinDialog";
-import * as groupApi from "../API/groupApi";
 
 const CreateGroup = () => {
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [dialogMode, setDialogMode] = useState('join');
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   

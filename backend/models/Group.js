@@ -20,10 +20,10 @@ const groupSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'User' 
   }],
-  admins: [{ 
+  admins: { 
     type: Schema.Types.ObjectId, 
     ref: 'User' 
-  }],
+  },
   goal: { 
     type: Schema.Types.ObjectId, 
     ref: 'Goal' 

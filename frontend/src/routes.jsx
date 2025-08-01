@@ -12,6 +12,7 @@ import GroupChat from "./pages/GroupChat";
 import CreateGroup from "./pages/CreateGroup";
 import JoinGroupPage from "./pages/JoinGroupPage";
 import whiteOwl from "./assets/whiteOwl.png";
+import CreatingGroup2 from "./pages/CreatingGroup2";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
@@ -94,7 +95,8 @@ const AppRoutes = () => (
         <Route path="chatroom/:groupId" element={<GroupChat />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="create-group" element={<CreateGroup />} />
+        {/* <Route path="create-group" element={<CreateGroup />} /> */}
+        <Route path="create-group" element={<CreatingGroup2 />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

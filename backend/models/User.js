@@ -40,7 +40,7 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  streakChanged: {
+  streakChanged: { // to descridbe the satate of the 
     type: Number,
     default: 0,
   },
@@ -73,6 +73,11 @@ const userSchema = new Schema({
     type: Boolean,
     default: true
   }
+  ,
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
 }, {
   timestamps: true
 });

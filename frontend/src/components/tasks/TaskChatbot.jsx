@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { SparklesIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { SparklesIcon, PaperAirplaneIcon, UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 const TaskChatbot = ({ onTaskGenerated }) => {
   const [messages, setMessages] = useState([
@@ -9,9 +9,18 @@ const TaskChatbot = ({ onTaskGenerated }) => {
       sender: "bot",
       timestamp: new Date(),
     },
+    {
+      id: 2,
+      text: "Would you like to generate tasks for yourself or for your group? This will help me tailor the task assignment and analytics accordingly.",
+      sender: "bot",
+      timestamp: new Date(),
+    },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isGroupMode, setIsGroupMode] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(true);
+  const [groupMembers, setGroupMembers] = useState([]);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -21,6 +30,46 @@ const TaskChatbot = ({ onTaskGenerated }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (isGroupMode) {
+      fetchGroupMembers();
+    }
+  }, [isGroupMode]);
+
+  const fetchGroupMembers = async () => {
+    try {
+      const response = await fetch('/api/groups/current', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success && data.group && data.group.members) {
+        setGroupMembers(data.group.members);
+      }
+    } catch (error) {
+      console.error('Error fetching group members:', error);
+    }
+  };
+
+  const handleModeSelection = (mode) => {
+    setIsGroupMode(mode);
+    setShowModeSelector(false);
+    
+    // TODO: Add admin check here - for now everyone can toggle
+    // Future: Check if user.admin === true for group task creation
+    
+    const modeMessage = {
+      id: Date.now(),
+      text: mode ? "Great! I'll generate tasks for your group with assignment options." : "Perfect! I'll generate tasks specifically for you.",
+      sender: "bot",
+      timestamp: new Date(),
+    };
+    
+    setMessages((prev) => [...prev, modeMessage]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +97,8 @@ const TaskChatbot = ({ onTaskGenerated }) => {
         body: JSON.stringify({
           taskDescription: originalInput,
           duration: "2 weeks", // Default duration, AI will detect from prompt if specified
+          isGroupMode: isGroupMode,
+          groupMembers: isGroupMode ? groupMembers : undefined,
         }),
       });
 
@@ -121,6 +172,34 @@ const TaskChatbot = ({ onTaskGenerated }) => {
         </div>
       </div>
 
+      {/* Mode Selector */}
+      {showModeSelector && (
+        <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm border-x border-purple-500/30 p-4">
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => handleModeSelection(false)}
+              className="flex-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 text-white px-4 py-3 rounded-xl hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <UserIcon className="w-5 h-5" />
+                <span className="font-medium">Individual Tasks</span>
+              </div>
+            </button>
+            <button
+              onClick={() => handleModeSelection(true)}
+              className="flex-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 text-white px-4 py-3 rounded-xl hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-300"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 flex">
+                  <UsersIcon className="w-4 h-4" />
+                </div>
+                <span className="font-medium">Group Tasks</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 bg-black/20 backdrop-blur-sm border-x border-purple-500/30 p-4 overflow-y-auto scrollbar-none hide-scrollbar">
         <div className="space-y-4">
@@ -175,13 +254,13 @@ const TaskChatbot = ({ onTaskGenerated }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Describe the task you want to work on..."
+            placeholder={showModeSelector ? "Please select task mode first..." : "Describe the task you want to work on..."}
             className="flex-1 bg-black/30 border border-purple-500/30 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-            disabled={loading}
+            disabled={loading || showModeSelector}
           />
           <button
             type="submit"
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || showModeSelector}
             className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform"
           >
             <PaperAirplaneIcon className="w-5 h-5" />

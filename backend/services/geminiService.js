@@ -30,15 +30,25 @@ class GeminiService {
     this.initialized = true;
   }
 
-  parseRoadmapToItems(roadmapText) {
-    console.log('Parsing roadmap text:', roadmapText); // Debug log
+  parseRoadmapToItems(roadmapData) {
+    console.log('Parsing roadmap data:', roadmapData); // Debug log
     
-    const lines = roadmapText.split("\n");
     const items = [];
     let order = 0;
 
+    // Handle both array and string formats
+    let lines = [];
+    if (Array.isArray(roadmapData)) {
+      lines = roadmapData;
+    } else if (typeof roadmapData === 'string') {
+      lines = roadmapData.split("\n");
+    } else {
+      console.warn('Invalid roadmap data format:', typeof roadmapData);
+      return items;
+    }
+
     lines.forEach((line) => {
-      const trimmedLine = line.trim();
+      const trimmedLine = typeof line === 'string' ? line.trim() : String(line).trim();
       if (trimmedLine.startsWith("•") || trimmedLine.startsWith("-") || trimmedLine.startsWith("*")) {
         // Remove bullet point and clean up the text
         const text = trimmedLine.replace(/^[•\-\*]\s*/, "").trim();
@@ -61,6 +71,29 @@ class GeminiService {
   validateAndProcessResources(resources) {
     if (!resources) return { free: [], paid: [] };
     
+    // Define fallback URLs for PW platform
+    const pwFallbackUrls = {
+      free: [
+        { 
+          url: "https://www.youtube.com/@PhysicsWallah", 
+          title: "Physics Wallah YouTube Channel",
+          description: "Free educational content and tutorials"
+        },
+        {
+          url: "https://www.pw.live",
+          title: "Physics Wallah Official Website", 
+          description: "Free resources and course information"
+        }
+      ],
+      paid: [
+        {
+          url: "https://pwskills.com",
+          title: "PW Skills Premium Courses",
+          description: "Professional courses with certification"
+        }
+      ]
+    };
+    
     const processResourceArray = (resourceArray, type) => {
       if (!Array.isArray(resourceArray)) return [];
       
@@ -72,13 +105,43 @@ class GeminiService {
           resource.platform &&
           ['GeeksForGeeks', 'PW'].includes(resource.platform)
         )
-        .map(resource => ({
-          title: resource.title,
-          url: resource.url,
-          platform: resource.platform,
-          type: type,
-          description: resource.description || ''
-        }))
+        .map(resource => {
+          // Validate and fix PW URLs
+          if (resource.platform === 'PW') {
+            // Check if URL looks suspicious or likely to be broken
+            const suspiciousPatterns = [
+              /\/batches\/course\//,  // Old URL pattern that doesn't work
+              /course\/[a-zA-Z-]+$/,  // Generic course paths that might be broken
+            ];
+            
+            const isSuspicious = suspiciousPatterns.some(pattern => 
+              pattern.test(resource.url)
+            ) || !resource.url.startsWith('https://');
+            
+            // If URL looks suspicious, use fallback
+            if (isSuspicious) {
+              const fallback = pwFallbackUrls[type]?.[0];
+              if (fallback) {
+                console.log(`Replacing suspicious PW URL: ${resource.url} with ${fallback.url}`);
+                return {
+                  title: resource.title,
+                  url: fallback.url,
+                  platform: resource.platform,
+                  type: type,
+                  description: `${resource.description || ''} (Updated working link)`.trim()
+                };
+              }
+            }
+          }
+          
+          return {
+            title: resource.title,
+            url: resource.url,
+            platform: resource.platform,
+            type: type,
+            description: resource.description || ''
+          };
+        })
         .slice(0, 3); // Limit to 3 resources per type
     };
     
@@ -88,7 +151,7 @@ class GeminiService {
     };
   }
 
-  async generateTaskWithRoadmap(taskDescription, duration = "2 weeks", userId) {
+  async generateTaskWithRoadmap(taskDescription, duration = "2 weeks", userId, isGroupMode = false, groupMembers = []) {
     try {
       this.initialize();
 
@@ -138,15 +201,18 @@ class GeminiService {
         `Original duration: ${duration}, Detected duration: ${detectedDuration}`
       );
 
-      const prompt = `
+      // Build the prompt based on whether it's group mode or individual mode
+      let prompt = `
 Create a concise task with roadmap for: "${taskDescription}"
 Duration: ${detectedDuration}
+${isGroupMode ? `Mode: Group Task (${groupMembers.length} members available for assignment)` : 'Mode: Individual Task'}
 
 IMPORTANT GUIDELINES:
 1. Keep roadmap items CONCISE - merge related tasks into single actionable items
 2. Maximum 8-10 roadmap items total regardless of duration
 3. Each item should be substantial and meaningful, not micro-tasks
 4. Include relevant learning resources from GeeksForGeeks and PW (Physics Wallah)
+${isGroupMode ? '5. Create task headers with subtasks that can be distributed among team members' : ''}
 
 Provide a JSON response with:
 {
@@ -158,7 +224,39 @@ Provide a JSON response with:
     {"title": "Initial setup and planning complete"},
     {"title": "Core functionality development finished"},
     {"title": "Testing and deployment complete"}
-  ],
+  ],`;
+
+      if (isGroupMode) {
+        prompt += `
+  "taskHeaders": [
+    {
+      "title": "Research & Planning",
+      "subtasks": [
+        {"text": "Market research and requirement analysis"},
+        {"text": "Create project timeline and milestones"},
+        {"text": "Define technical architecture"}
+      ]
+    },
+    {
+      "title": "Development Phase",
+      "subtasks": [
+        {"text": "Set up development environment"},
+        {"text": "Implement core features"},
+        {"text": "Add user interface components"}
+      ]
+    },
+    {
+      "title": "Testing & Deployment",
+      "subtasks": [
+        {"text": "Unit testing and integration testing"},
+        {"text": "User acceptance testing"},
+        {"text": "Deploy to production environment"}
+      ]
+    }
+  ],`;
+      }
+
+      prompt += `
   "resources": {
     "free": [
       {
@@ -169,17 +267,17 @@ Provide a JSON response with:
         "description": "Comprehensive tutorial covering the basics"
       },
       {
-        "title": "PW Free Tutorial Series",
-        "url": "https://www.pw.live/study/batches/course/web-development",
+        "title": "PW Free Programming Course",
+        "url": "https://www.youtube.com/@PhysicsWallah",
         "platform": "PW",
         "type": "free",
-        "description": "Free video tutorial series"
+        "description": "Free video tutorial series on YouTube"
       }
     ],
     "paid": [
       {
-        "title": "Advanced PW Course",
-        "url": "https://pwskills.com/course/full-stack-web-development",
+        "title": "PW Skills Web Development Course",
+        "url": "https://pwskills.com/course/full-stack-web-development-course",
         "platform": "PW",
         "type": "paid",
         "description": "Complete paid course with certification"
@@ -194,14 +292,20 @@ ROADMAP STRUCTURE RULES:
 - Start each item with an action verb (Research, Set up, Implement, etc.)
 - No sub-bullets or daily breakdowns - keep it as main phases only
 - Focus on what needs to be accomplished, not when
+${isGroupMode ? '- Create 3-4 task headers with 3-4 subtasks each for team distribution' : ''}
 
 RESOURCES REQUIREMENTS:
 - Find 2-3 FREE resources (1-2 from GeeksForGeeks, 1-2 from PW)
 - Find 1-2 PAID resources (from PW only - they have premium courses)
 - Resources must be relevant to "${taskDescription}"
-- Use realistic, working URLs
+- Use these verified URL patterns:
 - GeeksForGeeks URLs: https://www.geeksforgeeks.org/[relevant-topic]/
-- PW URLs: https://www.pw.live/study/batches/course/[course-name] or https://pwskills.com/course/[course-name]
+- PW FREE URLs: Use https://www.pw.live or YouTube PW channels like https://www.youtube.com/@PhysicsWallah
+- PW PAID URLs: Use https://pwskills.com or https://www.pw.live (verified working domains)
+- For programming topics, use: https://pwskills.com/course/data-structures-and-algorithms-java
+- For web development: https://pwskills.com/course/full-stack-web-development-course
+- For data science: https://pwskills.com/course/data-science-course
+- Always use realistic course names that PW actually offers
 
 Return ONLY the JSON object, no markdown formatting or code blocks.
 `;
@@ -276,6 +380,20 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
       console.log('Generated roadmap items:', roadmapItems);
       console.log('Generated resources:', validatedResources);
 
+      // Get user's current group if in group mode
+      let currentGroupId = null;
+      if (isGroupMode && user.currentGroupId) {
+        // user.currentGroupId is actually a joinCode, we need to get the actual ObjectId
+        const Group = (await import('../models/Group.js')).default;
+        const group = await Group.findOne({ joinCode: user.currentGroupId });
+        if (group) {
+          currentGroupId = group._id;
+          console.log('Found group for task:', { joinCode: user.currentGroupId, objectId: currentGroupId });
+        } else {
+          console.warn('No group found for joinCode:', user.currentGroupId);
+        }
+      }
+
       const newTask = {
         title: taskData.title,
         description: taskData.description,
@@ -288,7 +406,17 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
         resources: validatedResources,
         overallProgress: 0,
         UserId: userId,
+        isGroupTask: isGroupMode,
+        groupId: currentGroupId,
+        taskHeaders: isGroupMode ? (taskData.taskHeaders || []) : undefined,
       };
+
+      console.log('Creating new task with:', {
+        title: newTask.title,
+        isGroupTask: newTask.isGroupTask,
+        groupId: newTask.groupId,
+        hasTaskHeaders: !!newTask.taskHeaders
+      });
 
       user.tasks.push(newTask);
       await user.save();

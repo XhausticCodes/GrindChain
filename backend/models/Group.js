@@ -6,7 +6,11 @@ const groupSchema = new Schema({
     required: true,
     trim: true,
     maxlength: 100
-  },  
+  },
+  avatar: {
+    type: String,
+    default: null
+  },
   description: {
     type: String,
     maxlength: 500,

@@ -13,6 +13,14 @@ const milestoneSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false }
 });
 
+const resourceSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  url: { type: String, required: true },
+  platform: { type: String, enum: ['GeeksForGeeks', 'PW'], required: true },
+  type: { type: String, enum: ['free', 'paid'], required: true },
+  description: String
+});
+
 const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
@@ -25,6 +33,10 @@ const taskSchema = new mongoose.Schema({
   roadmap: String,
   roadmapItems: [roadmapItemSchema],
   milestones: [milestoneSchema],
+  resources: {
+    free: [resourceSchema],
+    paid: [resourceSchema]
+  },
   aiGenerated: { type: Boolean, default: false },
   overallProgress: { type: Number, default: 0, min: 0, max: 100 },
   completed: { type: Boolean, default: false }, // **NEW: Add completed field**

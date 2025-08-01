@@ -421,6 +421,144 @@ const geminiController = {
       });
     }
   },
+
+  getGroupAnalytics: async (req, res) => {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "User authentication required",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Check if user is in any group
+      if (!user.currentGroupId && (!user.groups || user.groups.length === 0)) {
+        return res.status(404).json({
+          success: false,
+          message: "User is not in any group",
+          code: "NO_GROUP"
+        });
+      }
+
+      // Get all users in the same group
+      const groupId = user.currentGroupId || user.groups[0];
+      const groupUsers = await User.find({ 
+        $or: [
+          { currentGroupId: groupId },
+          { groups: groupId }
+        ]
+      });
+
+      // Aggregate all tasks from group members
+      let allTasks = [];
+      let totalStreak = 0;
+      let memberStats = [];
+
+      groupUsers.forEach(member => {
+        const memberTasks = member.tasks || [];
+        allTasks = allTasks.concat(memberTasks);
+        totalStreak += member.streak || 0;
+        
+        memberStats.push({
+          username: member.username,
+          totalTasks: memberTasks.length,
+          completedTasks: memberTasks.filter(task => task.completed).length,
+          avgProgress: memberTasks.length > 0 
+            ? Math.round(memberTasks.reduce((sum, task) => sum + (task.overallProgress || 0), 0) / memberTasks.length)
+            : 0,
+          streak: member.streak || 0
+        });
+      });
+
+      // Calculate group analytics
+      const totalTasks = allTasks.length;
+      const completedTasks = allTasks.filter((task) => task.completed).length;
+      const avgProgress =
+        allTasks.length > 0
+          ? Math.round(
+              allTasks.reduce(
+                (sum, task) => sum + (task.overallProgress || 0),
+                0
+              ) / allTasks.length
+            )
+          : 0;
+
+      const priorityBreakdown = {
+        high: allTasks.filter((task) => task.priority === "high").length,
+        medium: allTasks.filter((task) => task.priority === "medium").length,
+        low: allTasks.filter((task) => task.priority === "low").length,
+      };
+
+      // Get group progress over time (last 7 days)
+      const progressOverTime = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dayTasks = allTasks.filter((task) => {
+          const taskDate = new Date(task.createdAt);
+          return taskDate.toDateString() === date.toDateString();
+        });
+
+        progressOverTime.push({
+          date: date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          }),
+          tasks: dayTasks.length,
+          avgProgress:
+            dayTasks.length > 0
+              ? Math.round(
+                  dayTasks.reduce(
+                    (sum, task) => sum + (task.overallProgress || 0),
+                    0
+                  ) / dayTasks.length
+                )
+              : 0,
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          groupId,
+          totalMembers: groupUsers.length,
+          totalTasks,
+          completedTasks,
+          avgProgress,
+          totalStreak,
+          avgStreak: Math.round(totalStreak / groupUsers.length),
+          priorityBreakdown,
+          progressOverTime,
+          memberStats: memberStats.sort((a, b) => b.completedTasks - a.completedTasks), // Sort by completed tasks
+          tasks: allTasks.map((task) => ({
+            id: task._id,
+            title: task.title,
+            progress: task.overallProgress || 0,
+            priority: task.priority,
+            completed: task.completed,
+          })),
+        },
+      });
+    } catch (error) {
+      console.error("Get group analytics error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch group analytics",
+        error: error.message,
+      });
+    }
+  },
   // Add this new method to the geminiController object
 
   migrateTasksCompletedField: async (req, res) => {

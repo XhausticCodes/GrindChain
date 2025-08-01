@@ -31,30 +31,62 @@ class GeminiService {
   }
 
   parseRoadmapToItems(roadmapText) {
-  console.log('Parsing roadmap text:', roadmapText); // Debug log
-  
-  const lines = roadmapText.split("\n");
-  const items = [];
-  let order = 0;
+    console.log('Parsing roadmap text:', roadmapText); // Debug log
+    
+    const lines = roadmapText.split("\n");
+    const items = [];
+    let order = 0;
 
-  lines.forEach((line) => {
-    const trimmedLine = line.trim();
-    if (trimmedLine.startsWith("•") || trimmedLine.startsWith("-") || trimmedLine.startsWith("*")) {
-      // Remove bullet point and clean up the text
-      const text = trimmedLine.replace(/^[•\-\*]\s*/, "").trim();
-      if (text && text.length > 3) { // Remove the colon check as it might be filtering out valid items
-        items.push({
-          text: text,
-          completed: false,
-          order: order++,
-        });
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith("•") || trimmedLine.startsWith("-") || trimmedLine.startsWith("*")) {
+        // Remove bullet point and clean up the text
+        const text = trimmedLine.replace(/^[•\-\*]\s*/, "").trim();
+        // Less restrictive filtering - allow more items but keep them meaningful
+        if (text && text.length > 5) {
+          items.push({
+            text: text,
+            completed: false,
+            order: order++,
+          });
+        }
       }
-    }
-  });
+    });
 
-  console.log('Parsed roadmap items:', items); // Debug log
-  return items;
-}
+    console.log('Parsed roadmap items:', items); // Debug log
+    // Limit to maximum 10 items to keep it concise but allow more than before
+    return items.slice(0, 10);
+  }
+
+  validateAndProcessResources(resources) {
+    if (!resources) return { free: [], paid: [] };
+    
+    const processResourceArray = (resourceArray, type) => {
+      if (!Array.isArray(resourceArray)) return [];
+      
+      return resourceArray
+        .filter(resource => 
+          resource && 
+          resource.title && 
+          resource.url && 
+          resource.platform &&
+          ['GeeksForGeeks', 'PW'].includes(resource.platform)
+        )
+        .map(resource => ({
+          title: resource.title,
+          url: resource.url,
+          platform: resource.platform,
+          type: type,
+          description: resource.description || ''
+        }))
+        .slice(0, 3); // Limit to 3 resources per type
+    };
+    
+    return {
+      free: processResourceArray(resources.free, 'free'),
+      paid: processResourceArray(resources.paid, 'paid')
+    };
+  }
 
   async generateTaskWithRoadmap(taskDescription, duration = "2 weeks", userId) {
     try {
@@ -107,30 +139,71 @@ class GeminiService {
       );
 
       const prompt = `
-Create a comprehensive task with roadmap for: "${taskDescription}"
+Create a concise task with roadmap for: "${taskDescription}"
 Duration: ${detectedDuration}
+
+IMPORTANT GUIDELINES:
+1. Keep roadmap items CONCISE - merge related tasks into single actionable items
+2. Maximum 8-10 roadmap items total regardless of duration
+3. Each item should be substantial and meaningful, not micro-tasks
+4. Include relevant learning resources from GeeksForGeeks and PW (Physics Wallah)
 
 Provide a JSON response with:
 {
   "title": "Clear, concise task title",
   "description": "Detailed description of what needs to be accomplished",
   "priority": "low/medium/high",
-  "roadmap": "• Week 1:\\n  • Day 1-2: Setup and initial planning\\n  • Day 3-5: Core development\\n  • Day 6-7: Testing and review\\n• Week 2:\\n  • Day 1-3: Refinement and optimization\\n  • Day 4-5: Final testing\\n  • Day 6-7: Deployment and documentation\\n\\nKey Milestones:\\n• Milestone 1: Initial setup complete\\n• Milestone 2: Core functionality ready\\n• Milestone 3: Final delivery",
+  "roadmap": "• Research and understand requirements\\n• Set up development environment\\n• Implement core functionality\\n• Add advanced features\\n• Test and debug\\n• Deploy and document",
   "milestones": [
     {"title": "Initial setup and planning complete"},
     {"title": "Core functionality development finished"},
     {"title": "Testing and deployment complete"}
-  ]
+  ],
+  "resources": {
+    "free": [
+      {
+        "title": "Relevant GeeksForGeeks Tutorial",
+        "url": "https://www.geeksforgeeks.org/learn-web-development/",
+        "platform": "GeeksForGeeks",
+        "type": "free",
+        "description": "Comprehensive tutorial covering the basics"
+      },
+      {
+        "title": "PW Free Tutorial Series",
+        "url": "https://www.pw.live/study/batches/course/web-development",
+        "platform": "PW",
+        "type": "free",
+        "description": "Free video tutorial series"
+      }
+    ],
+    "paid": [
+      {
+        "title": "Advanced PW Course",
+        "url": "https://pwskills.com/course/full-stack-web-development",
+        "platform": "PW",
+        "type": "paid",
+        "description": "Complete paid course with certification"
+      }
+    ]
+  }
 }
 
-IMPORTANT: Adjust the roadmap structure based on the duration of ${detectedDuration}:
-- For 1-7 days: Focus on daily tasks within the timeframe
-- For 1 week: Break down into daily tasks for the week
-- For 2+ weeks: Break down into weekly phases with daily sub-tasks
-- For 1+ months: Break down into weekly phases with monthly milestones
+ROADMAP STRUCTURE RULES:
+- For ${detectedDuration}: Create 6-8 substantial actionable items
+- Each roadmap item should be a clear, actionable task
+- Start each item with an action verb (Research, Set up, Implement, etc.)
+- No sub-bullets or daily breakdowns - keep it as main phases only
+- Focus on what needs to be accomplished, not when
 
-Format the roadmap with bullet points (•) and clear breakdowns appropriate for ${detectedDuration}.
-Use \\n for line breaks. Return ONLY the JSON object, no markdown formatting or code blocks.
+RESOURCES REQUIREMENTS:
+- Find 2-3 FREE resources (1-2 from GeeksForGeeks, 1-2 from PW)
+- Find 1-2 PAID resources (from PW only - they have premium courses)
+- Resources must be relevant to "${taskDescription}"
+- Use realistic, working URLs
+- GeeksForGeeks URLs: https://www.geeksforgeeks.org/[relevant-topic]/
+- PW URLs: https://www.pw.live/study/batches/course/[course-name] or https://pwskills.com/course/[course-name]
+
+Return ONLY the JSON object, no markdown formatting or code blocks.
 `;
 
       const response = await this.ai.models.generateContent({
@@ -198,6 +271,10 @@ Use \\n for line breaks. Return ONLY the JSON object, no markdown formatting or 
       );
 
       const roadmapItems = this.parseRoadmapToItems(taskData.roadmap || "");
+      const validatedResources = this.validateAndProcessResources(taskData.resources);
+      
+      console.log('Generated roadmap items:', roadmapItems);
+      console.log('Generated resources:', validatedResources);
 
       const newTask = {
         title: taskData.title,
@@ -208,6 +285,7 @@ Use \\n for line breaks. Return ONLY the JSON object, no markdown formatting or 
         duration: detectedDuration,
         aiGenerated: true,
         milestones: processedMilestones,
+        resources: validatedResources,
         overallProgress: 0,
         UserId: userId,
       };

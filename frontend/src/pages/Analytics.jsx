@@ -8,6 +8,8 @@ import {
   CalendarIcon,
   ListBulletIcon,
   FireIcon,
+  UsersIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import {
   LineChart,
@@ -23,12 +25,16 @@ import {
   Bar,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import whiteOwl from "../assets/whiteOwl.png";
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
+  const [groupAnalytics, setGroupAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isGroupView, setIsGroupView] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAnalytics();
@@ -53,6 +59,47 @@ const Analytics = () => {
     }
   };
 
+  const fetchGroupAnalytics = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/ai/group-analytics", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setGroupAnalytics(data.data);
+        setIsGroupView(true);
+      } else if (data.code === "NO_GROUP") {
+        // User is not in any group, redirect to chatroom
+        navigate("/chatroom");
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching group analytics:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleAnalyticsView = () => {
+    if (loading) return; // Prevent toggle during loading
+    
+    if (isGroupView) {
+      // Switch back to personal analytics
+      setIsGroupView(false);
+      setLoading(false);
+    } else {
+      // Switch to group analytics
+      fetchGroupAnalytics();
+    }
+  };
+
+  // Get current analytics data based on view
+  const currentAnalytics = isGroupView ? groupAnalytics : analytics;
+
   if (loading) {
     return (
       <div className="relative h-full w-full overflow-hidden flex items-center justify-center">
@@ -74,19 +121,15 @@ const Analytics = () => {
     );
   }
 
-  if (!analytics) {
+  if (!currentAnalytics) {
     return (
       <div className="relative h-full w-full overflow-hidden">
-        {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(120,_119,_198,_0.3),_transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,_rgba(147,_51,_234,_0.2),_transparent_50%)]"></div>
-        </div> */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <ChartBarIcon className="w-16 h-16 text-purple-400/50 mx-auto mb-4" />
             <p className="text-gray-400 text-lg">No analytics data available</p>
             <p className="text-gray-500 text-sm">
-              Create some tasks to see analytics
+              {isGroupView ? "Create group tasks to see analytics" : "Create some tasks to see analytics"}
             </p>
           </div>
         </div>
@@ -103,24 +146,24 @@ const Analytics = () => {
   const priorityData = [
     {
       name: "High Priority",
-      value: analytics.priorityBreakdown.high,
+      value: currentAnalytics.priorityBreakdown.high,
       color: priorityColors.high,
     },
     {
       name: "Medium Priority",
-      value: analytics.priorityBreakdown.medium,
+      value: currentAnalytics.priorityBreakdown.medium,
       color: priorityColors.medium,
     },
     {
       name: "Low Priority",
-      value: analytics.priorityBreakdown.low,
+      value: currentAnalytics.priorityBreakdown.low,
       color: priorityColors.low,
     },
   ].filter((item) => item.value > 0);
 
   const completionRate =
-    analytics.totalTasks > 0
-      ? Math.round((analytics.completedTasks / analytics.totalTasks) * 100)
+    currentAnalytics.totalTasks > 0
+      ? Math.round((currentAnalytics.completedTasks / currentAnalytics.totalTasks) * 100)
       : 0;
 
   return (
@@ -137,22 +180,72 @@ const Analytics = () => {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h1
-              className="text-3xl  font-bold bg-gradient-to-br from-yellow-400 to-yellow-600 bg-clip-text text-transparent mb-2 tracking-wider analytics-glow"
+              className="text-3xl font-bold bg-gradient-to-br from-yellow-400 to-yellow-600 bg-clip-text text-transparent mb-2 tracking-wider analytics-glow"
               style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
             >
-              TASK ANALYTICS DASHBOARD
+              {isGroupView ? "GROUP ANALYTICS DASHBOARD" : "TASK ANALYTICS DASHBOARD"}
             </h1>
             <p className="text-gray-200">
-              Track your productivity and task completion metrics
+              {isGroupView 
+                ? "Track your group's collective productivity and progress" 
+                : "Track your productivity and task completion metrics"
+              }
             </p>
           </div>
-          <div>
+          <div className="flex items-center gap-4">
+            {/* Toggle Switch */}
+            <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <UserIcon className="w-5 h-5 text-gray-400" />
+                <div className="relative">
+                  <button
+                    onClick={toggleAnalyticsView}
+                    disabled={loading}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 ${
+                      isGroupView 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/25' 
+                        : 'bg-slate-600 hover:bg-slate-500'
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={isGroupView}
+                    aria-label="Toggle between personal and group analytics"
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-all duration-300 ${
+                        isGroupView ? 'translate-x-6 shadow-purple-500/20' : 'translate-x-1'
+                      } ${loading ? 'animate-pulse' : ''}`}
+                    />
+                    {/* Loading indicator */}
+                    {loading && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </button>
+                </div>
+                <UsersIcon className="w-5 h-5 text-gray-400" />
+              </div>
+              <div className="mt-2 text-center">
+                <span className={`text-xs font-medium transition-colors duration-300 ${
+                  isGroupView ? 'text-purple-400' : 'text-gray-400'
+                }`}>
+                  {loading ? 'Switching...' : (isGroupView ? "Group Analytics" : "Personal Analytics")}
+                </span>
+              </div>
+            </div>
+            
+            {/* Streak Display */}
             <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <FireIcon className="w-8 h-8 text-orange-400" />
-                  <p className="text-gray-400 text-sm">Total Streak</p>
-                  <p className="text-2xl font-bold text-white">{user.streak}</p>
+                  <p className="text-gray-400 text-sm">
+                    {isGroupView ? "Total Group Streak" : "Personal Streak"}
+                  </p>
+                  <p className="text-2xl font-bold text-white">
+                    {isGroupView ? groupAnalytics?.totalStreak || 0 : user.streak}
+                  </p>
                 </div>
               </div>
             </div>
@@ -166,7 +259,7 @@ const Analytics = () => {
               <div>
                 <p className="text-gray-400 text-sm">Total Tasks</p>
                 <p className="text-2xl font-bold text-white">
-                  {analytics.totalTasks}
+                  {currentAnalytics.totalTasks}
                 </p>
               </div>
               <ListBulletIcon className="w-8 h-8 text-purple-400" />
@@ -178,7 +271,7 @@ const Analytics = () => {
               <div>
                 <p className="text-gray-400 text-sm">Completed</p>
                 <p className="text-2xl font-bold text-green-400">
-                  {analytics.completedTasks}
+                  {currentAnalytics.completedTasks}
                 </p>
               </div>
               <CheckCircleIcon className="w-8 h-8 text-green-400" />
@@ -190,7 +283,7 @@ const Analytics = () => {
               <div>
                 <p className="text-gray-400 text-sm">In Progress</p>
                 <p className="text-2xl font-bold text-yellow-400">
-                  {analytics.totalTasks - analytics.completedTasks}
+                  {currentAnalytics.totalTasks - currentAnalytics.completedTasks}
                 </p>
               </div>
               <ClockIcon className="w-8 h-8 text-yellow-400" />
@@ -200,12 +293,18 @@ const Analytics = () => {
           <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Completion Rate</p>
+                <p className="text-gray-400 text-sm">
+                  {isGroupView ? "Group Members" : "Completion Rate"}
+                </p>
                 <p className="text-2xl font-bold text-blue-400">
-                  {completionRate}%
+                  {isGroupView ? `${groupAnalytics?.totalMembers || 0}` : `${completionRate}%`}
                 </p>
               </div>
-              <TrophyIcon className="w-8 h-8 text-blue-400" />
+              {isGroupView ? (
+                <UsersIcon className="w-8 h-8 text-blue-400" />
+              ) : (
+                <TrophyIcon className="w-8 h-8 text-blue-400" />
+              )}
             </div>
           </div>
         </div>
@@ -220,7 +319,7 @@ const Analytics = () => {
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analytics.progressOverTime}>
+                <LineChart data={currentAnalytics.progressOverTime}>
                   <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                   <YAxis stroke="#94a3b8" fontSize={12} />
                   <Tooltip
@@ -282,14 +381,60 @@ const Analytics = () => {
           </div>
         </div>
 
+        {/* Group Member Stats - Only show in group view */}
+        {isGroupView && groupAnalytics?.memberStats && (
+          <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6 mb-6">
+            <h3 className="text-purple-400 font-medium mb-4 flex items-center gap-2">
+              <UsersIcon className="w-5 h-5" />
+              Group Member Performance
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {groupAnalytics.memberStats.map((member, index) => (
+                <div
+                  key={member.username}
+                  className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/20"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-medium">{member.username}</h4>
+                    <div className="flex items-center gap-1">
+                      <FireIcon className="w-4 h-4 text-orange-400" />
+                      <span className="text-orange-400 text-sm">{member.streak}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Total Tasks:</span>
+                      <span className="text-white">{member.totalTasks}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Completed:</span>
+                      <span className="text-green-400">{member.completedTasks}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Progress:</span>
+                      <span className="text-blue-400">{member.avgProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${member.avgProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Task Progress Details */}
         <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6 mb-6">
           <h3 className="text-purple-400 font-medium mb-4 flex items-center gap-2">
             <ListBulletIcon className="w-5 h-5" />
-            Individual Task Progress
+            {isGroupView ? "All Group Tasks Progress" : "Individual Task Progress"}
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {analytics.tasks.map((task) => (
+            {currentAnalytics.tasks.map((task) => (
               <div
                 key={task.id}
                 className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg"

@@ -5,12 +5,12 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Tasks from "./pages/Tasks";
 import Analytics from "./pages/Analytics";
-import Chatroom from "./pages/Chatroom";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
 import GroupChat from "./pages/GroupChat";
 import CreateGroup from "./pages/CreateGroup";
+import JoinGroupPage from "./pages/JoinGroupPage";
 import whiteOwl from "./assets/whiteOwl.png";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -74,6 +74,10 @@ const AppRoutes = () => (
           </PublicRoute>
         }
       />
+      {/* Public join routes for invite links */}
+      <Route path="/join/:groupId" element={<JoinGroupPage />} />
+      <Route path="/join-group" element={<JoinGroupPage />} />
+      
       <Route
         path="/"
         element={
@@ -86,8 +90,8 @@ const AppRoutes = () => (
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="analytics" element={<Analytics />} />
-        <Route path="chatroom/:groupID" element={<GroupChat />} />
-        {/* <Route path="chatroom" element={<Chatroom />} /> */}
+        <Route path="chatroom" element={<GroupChat />} />
+        <Route path="chatroom/:groupId" element={<GroupChat />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
         <Route path="create-group" element={<CreateGroup />} />

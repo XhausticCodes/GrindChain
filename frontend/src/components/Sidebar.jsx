@@ -42,7 +42,7 @@ const Sidebar = () => {
                 <React.Fragment key={idx}>
                   {user.groupID ? (
                     <NavLink
-                      to={`/chatRoom/${user.groupID}`}
+                      to={`/chatroom`}
                       className={({ isActive }) => {
                         const isBig = parentHovered
                           ? hoveredIdx === "chatroom"

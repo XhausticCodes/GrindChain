@@ -402,6 +402,115 @@ const TaskList = ({
                             </div>
                           </div>
                         )}
+                        
+                        {/* Resources Section */}
+                        {task.resources && (task.resources.free?.length > 0 || task.resources.paid?.length > 0) && (
+                          <div>
+                            <h4 className="text-purple-400 font-medium mb-3">
+                              📚 Learning Resources
+                            </h4>
+                            {console.log('Rendering resources for task:', task.title, task.resources)}
+                            
+                            {/* Free Resources */}
+                            {task.resources.free && task.resources.free.length > 0 && (
+                              <div className="mb-4">
+                                <h5 className="text-green-400 font-medium mb-2 text-sm flex items-center gap-2">
+                                  🆓 Free Resources
+                                </h5>
+                                <div className="space-y-2">
+                                  {task.resources.free.map((resource, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-slate-700/20 rounded-lg p-3 border border-green-500/20 hover:border-green-400/40 transition-colors"
+                                    >
+                                      <div className="flex items-start justify-between gap-3">
+                                        <div className="flex-1">
+                                          <a
+                                            href={resource.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-white font-medium text-sm hover:text-green-400 transition-colors cursor-pointer underline hover:no-underline"
+                                            onClick={(e) => {
+                                              console.log('Clicking resource:', resource.url);
+                                              // Ensure the click event propagates
+                                              e.stopPropagation();
+                                            }}
+                                          >
+                                            {resource.title}
+                                          </a>
+                                          {resource.description && (
+                                            <p className="text-gray-400 text-xs mt-1">
+                                              {resource.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className={`text-xs px-2 py-1 rounded-full ${
+                                            resource.platform === 'GeeksForGeeks' 
+                                              ? 'bg-green-600/30 text-green-300' 
+                                              : 'bg-blue-600/30 text-blue-300'
+                                          }`}>
+                                            {resource.platform}
+                                          </span>
+                                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Paid Resources */}
+                            {task.resources.paid && task.resources.paid.length > 0 && (
+                              <div>
+                                <h5 className="text-yellow-400 font-medium mb-2 text-sm flex items-center gap-2">
+                                  💰 Premium Resources
+                                </h5>
+                                <div className="space-y-2">
+                                  {task.resources.paid.map((resource, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-slate-700/20 rounded-lg p-3 border border-yellow-500/20 hover:border-yellow-400/40 transition-colors"
+                                    >
+                                      <div className="flex items-start justify-between gap-3">
+                                        <div className="flex-1">
+                                          <a
+                                            href={resource.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-white font-medium text-sm hover:text-yellow-400 transition-colors cursor-pointer underline hover:no-underline"
+                                            onClick={(e) => {
+                                              console.log('Clicking paid resource:', resource.url);
+                                              e.stopPropagation();
+                                            }}
+                                          >
+                                            {resource.title}
+                                          </a>
+                                          {resource.description && (
+                                            <p className="text-gray-400 text-xs mt-1">
+                                              {resource.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs px-2 py-1 rounded-full bg-yellow-600/30 text-yellow-300">
+                                            {resource.platform}
+                                          </span>
+                                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

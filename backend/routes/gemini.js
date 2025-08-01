@@ -10,6 +10,7 @@ router.get('/tasks', authMiddleware, geminiController.getTasks);
 router.delete('/tasks/:taskId', authMiddleware, geminiController.deleteTask);
 router.patch('/tasks/:taskId/roadmap/:itemIndex', authMiddleware, geminiController.updateRoadmapItem);
 router.get('/analytics', authMiddleware, geminiController.getTaskAnalytics);
+router.get('/group-analytics', authMiddleware, geminiController.getGroupAnalytics);
 router.post('/migrate-tasks', authMiddleware, geminiController.migrateTasksCompletedField); // **NEW: Migration route**
 
 export default router;

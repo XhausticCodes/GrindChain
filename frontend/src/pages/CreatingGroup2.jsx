@@ -2,8 +2,10 @@ import React from "react";
 import socketAPI from "../API/socketApi";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const CreatingGroup2 = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [createNewGroup, setCreateNewGroup] = useState(false);
@@ -12,7 +14,6 @@ const CreatingGroup2 = () => {
     groupName: "",
     description: "",
     groupImage: null,
-    admin: "",
   });
 
   const handleCreateNewGroup = () => {
@@ -28,8 +29,8 @@ const CreatingGroup2 = () => {
   };
 
   const handleCreateGroup = () => {
-    const { groupName, description, admin } = formData;
-    if (!groupName || !description || !admin) {
+    const { groupName, description } = formData;
+    if (!groupName || !description) {
       alert("Please fill in all fields.");
       return;
     }
@@ -41,8 +42,15 @@ const CreatingGroup2 = () => {
       avatar: formData.groupImage,
     };
 
-    socketAPI.emit()
-
+    socketAPI.emit("createGroup", {groupData, userId: user._id}, (response) => {
+      if (response.success) {
+        socketAPI.emit("joinGroup", response.groupId, user.username);
+        alert("Group created successfully!");
+        navigate(`/chatroom/${response.groupId}`, { replace: true });
+      } else {
+        alert("Failed to create group: " + response.message);
+      }
+    });
   };
 
   if (createNewGroup) {
@@ -91,19 +99,6 @@ const CreatingGroup2 = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, groupImage: e.target.files[0] })
                   }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Admin
-                </label>
-                <input
-                  type="text"
-                  value={user.username}
-                  onChange={handleInput}
-                  name="admin"
-                  placeholder="Enter the admin's name"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 />
               </div>
               <button

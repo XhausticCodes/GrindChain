@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import User from "../models/User.js";
+import Group from "../models/Group.js";
 
 const connectToSockets = (server) => {
   const io = new Server(server, {
@@ -14,20 +15,56 @@ const connectToSockets = (server) => {
   io.on("connection", (socket) => {
     console.log("A User Connected", socket.id);
 
+    socket.on("createGroup", async ({ groupData, userId }, callback) => {
+      const { name, description, avatar, admin } = groupData;
+      if (!name || !description) {
+        return callback({ success: false, message: "Missing required fields" });
+      }
+
+      try {
+        const newGroup = new Group({
+          name,
+          description,
+          avatar,
+          admin,
+          joinCode: Math.random().toString(36).substring(2, 8),
+        });
+        await newGroup.save();
+
+        try {
+          const updatedUser = await User.findOneAndUpdate(
+            { _id: userId, isAdmin: false },
+            { isAdmin: true },
+            { new: true }
+          );
+          if (!updatedUser) {
+            return callback({
+              success: false,
+              message: "User not found or not updated",
+            });
+          }
+        } catch (err) {
+          callback({ success: false, message: "Error updating user" });
+        }
+
+        return callback({ success: true, groupId: newGroup._id });
+      } catch (error) {
+        console.error("Error creating group:", error);
+        return callback({ success: false, message: "Server error" });
+      }
+    });
+
     socket.on("joinGroup", async ({ groupID, username }) => {
       socket.join(groupID);
       console.log(`${username} joined group ${groupID}`);
-      
+
       try {
         const currUser = await User.findOneAndUpdate(
           { username: username },
-          { 
-            $set: { 
-              // Use a different field for simple group IDs
+          {
+            $set: {
               currentGroupId: groupID,
-              // Keep groups array for actual Group ObjectIds
-              // groups: [] // Don't modify this unless you have actual Group documents
-            }
+            },
           },
           { new: true }
         );
@@ -37,10 +74,10 @@ const connectToSockets = (server) => {
         } else {
           console.error("User not found or failed to update groups");
         }
-      } catch (error) { 
+      } catch (error) {
         console.error("Error joining group:", error);
       }
-      
+
       socket.to(groupID).emit("userJoined", { username, groupID });
     });
 

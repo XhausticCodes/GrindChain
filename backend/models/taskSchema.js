@@ -39,12 +39,32 @@ const taskSchema = new mongoose.Schema({
   },
   aiGenerated: { type: Boolean, default: false },
   overallProgress: { type: Number, default: 0, min: 0, max: 100 },
-  completed: { type: Boolean, default: false }, // **NEW: Add completed field**
+  completed: { type: Boolean, default: false },
   UserId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
     required: true 
-  }
+  },
+  isGroupTask: { type: Boolean, default: false },
+  assignedTo: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User'
+  },
+  groupId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Group'
+  },
+  taskHeaders: [{
+    title: { type: String, required: true },
+    assignedTo: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User'
+    },
+    subtasks: [{
+      text: { type: String, required: true },
+      completed: { type: Boolean, default: false }
+    }]
+  }]
 }, {
   timestamps: true
 });

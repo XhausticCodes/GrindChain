@@ -6,7 +6,7 @@ const geminiService = new GeminiService();
 const geminiController = {
   generateTask: async (req, res) => {
     try {
-      const { taskDescription, duration } = req.body;
+      const { taskDescription, duration, isGroupMode, groupMembers } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -26,7 +26,9 @@ const geminiController = {
       const result = await geminiService.generateTaskWithRoadmap(
         taskDescription,
         duration || "2 weeks",
-        userId
+        userId,
+        isGroupMode || false,
+        groupMembers || []
       );
 
       // **NEW: Ensure the generated task has completed field set to false**
@@ -152,24 +154,61 @@ const geminiController = {
         });
       }
 
-      // Convert tasks to regular objects and ensure roadmapItems exist
-      const tasks = (user.tasks || []).map((task) => {
-        const taskObj = task.toObject();
+      // Get all users to find tasks assigned to current user
+      const allUsers = await User.find({});
+      const allTasks = [];
 
-        // If roadmapItems don't exist but roadmap does, parse it
-        if (!taskObj.roadmapItems && taskObj.roadmap) {
-          const geminiService = new GeminiService();
-          taskObj.roadmapItems = geminiService.parseRoadmapToItems(
-            taskObj.roadmap
-          );
+      // Collect tasks from all users
+      allUsers.forEach(userDoc => {
+        if (userDoc.tasks) {
+          userDoc.tasks.forEach(task => {
+            const taskObj = task.toObject();
+            
+            // Check if current user should see this task
+            const isCreator = taskObj.UserId && taskObj.UserId.toString() === userId;
+            const isDirectlyAssigned = taskObj.assignedTo && taskObj.assignedTo.toString() === userId;
+            
+            // Check if assigned to any header (no longer checking subtasks)
+            let isAssignedToHeader = false;
+            if (taskObj.taskHeaders) {
+              taskObj.taskHeaders.forEach(header => {
+                // Check if assigned to header
+                if (header.assignedTo && header.assignedTo.toString() === userId) {
+                  isAssignedToHeader = true;
+                }
+              });
+            }
+
+            // Include task if user is creator, assigned, or assigned to headers
+            if (isCreator || isDirectlyAssigned || isAssignedToHeader) {
+              // If roadmapItems don't exist but roadmap does, parse it
+              if (!taskObj.roadmapItems && taskObj.roadmap) {
+                const geminiService = new GeminiService();
+                taskObj.roadmapItems = geminiService.parseRoadmapToItems(
+                  taskObj.roadmap
+                );
+              }
+
+              // Add creator info for better UX
+              taskObj.createdBy = {
+                id: userDoc._id,
+                username: userDoc.username
+              };
+
+              allTasks.push(taskObj);
+            }
+          });
         }
-
-        return taskObj;
       });
+
+      // Remove duplicates based on task ID
+      const uniqueTasks = allTasks.filter((task, index, self) => 
+        index === self.findIndex(t => t._id.toString() === task._id.toString())
+      );
 
       res.json({
         success: true,
-        data: { tasks },
+        data: { tasks: uniqueTasks },
       });
     } catch (error) {
       console.error("Get tasks error:", error);
@@ -422,6 +461,148 @@ const geminiController = {
     }
   },
 
+  updateGroupSubtask: async (req, res) => {
+    try {
+      const { taskId, headerIndex, subtaskIndex } = req.params;
+      const { completed } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "User authentication required",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      const task = user.tasks.id(taskId);
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      }
+
+      if (!task.isGroupTask || !task.taskHeaders) {
+        return res.status(400).json({
+          success: false,
+          message: "Not a group task",
+        });
+      }
+
+      const headerIdx = parseInt(headerIndex);
+      const subtaskIdx = parseInt(subtaskIndex);
+
+      if (headerIdx >= 0 && headerIdx < task.taskHeaders.length &&
+          subtaskIdx >= 0 && subtaskIdx < task.taskHeaders[headerIdx].subtasks.length) {
+        
+        task.taskHeaders[headerIdx].subtasks[subtaskIdx].completed = completed;
+
+        // Calculate overall progress
+        const totalSubtasks = task.taskHeaders.reduce((total, header) => 
+          total + header.subtasks.length, 0
+        );
+        const completedSubtasks = task.taskHeaders.reduce((total, header) => 
+          total + header.subtasks.filter(subtask => subtask.completed).length, 0
+        );
+        
+        task.overallProgress = Math.round((completedSubtasks / totalSubtasks) * 100);
+        task.completed = task.overallProgress === 100;
+
+        await user.save();
+
+        res.json({
+          success: true,
+          message: "Subtask updated successfully",
+          data: { task }
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "Subtask not found",
+        });
+      }
+    } catch (error) {
+      console.error("Update group subtask error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update subtask",
+        error: error.message,
+      });
+    }
+  },
+
+  assignGroupTask: async (req, res) => {
+    try {
+      const { taskId } = req.params;
+      const { headerIndex, subtaskIndex, userId: assigneeId, type } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "User authentication required",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      const task = user.tasks.id(taskId);
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      }
+
+      if (!task.isGroupTask || !task.taskHeaders) {
+        return res.status(400).json({
+          success: false,
+          message: "Not a group task",
+        });
+      }
+
+      const headerIdx = parseInt(headerIndex);
+
+      if (type === 'header' && headerIdx >= 0 && headerIdx < task.taskHeaders.length) {
+        task.taskHeaders[headerIdx].assignedTo = assigneeId || null;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid assignment parameters",
+        });
+      }
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: "Task assigned successfully",
+        data: { task }
+      });
+    } catch (error) {
+      console.error("Assign group task error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to assign task",
+        error: error.message,
+      });
+    }
+  },
+
   getGroupAnalytics: async (req, res) => {
     try {
       const userId = req.user?.id;
@@ -493,6 +674,37 @@ const geminiController = {
             )
           : 0;
 
+      // Group task specific analytics
+      const groupTasks = allTasks.filter(task => task.isGroupTask);
+      const individualTasks = allTasks.filter(task => !task.isGroupTask);
+      
+      let totalGroupSubtasks = 0;
+      let completedGroupSubtasks = 0;
+      let groupTaskHeaders = [];
+
+      groupTasks.forEach(task => {
+        if (task.taskHeaders && Array.isArray(task.taskHeaders)) {
+          task.taskHeaders.forEach(header => {
+            const headerData = {
+              taskTitle: task.title,
+              headerTitle: header.title,
+              assignedTo: header.assignedTo,
+              subtasks: header.subtasks || [],
+              completedSubtasks: (header.subtasks || []).filter(st => st.completed).length,
+              totalSubtasks: (header.subtasks || []).length
+            };
+            groupTaskHeaders.push(headerData);
+            
+            totalGroupSubtasks += headerData.totalSubtasks;
+            completedGroupSubtasks += headerData.completedSubtasks;
+          });
+        }
+      });
+
+      const groupTaskProgress = totalGroupSubtasks > 0 
+        ? Math.round((completedGroupSubtasks / totalGroupSubtasks) * 100)
+        : 0;
+
       const priorityBreakdown = {
         high: allTasks.filter((task) => task.priority === "high").length,
         medium: allTasks.filter((task) => task.priority === "medium").length,
@@ -540,12 +752,22 @@ const geminiController = {
           priorityBreakdown,
           progressOverTime,
           memberStats: memberStats.sort((a, b) => b.completedTasks - a.completedTasks), // Sort by completed tasks
+          // Group task specific analytics
+          groupTaskAnalytics: {
+            totalGroupTasks: groupTasks.length,
+            totalIndividualTasks: individualTasks.length,
+            totalGroupSubtasks,
+            completedGroupSubtasks,
+            groupTaskProgress,
+            taskHeaders: groupTaskHeaders
+          },
           tasks: allTasks.map((task) => ({
             id: task._id,
             title: task.title,
             progress: task.overallProgress || 0,
             priority: task.priority,
             completed: task.completed,
+            isGroupTask: task.isGroupTask || false,
           })),
         },
       });

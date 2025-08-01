@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
 import User from "../models/User.js";
-import mongoose from "mongoose";
 
 const connectToSockets = (server) => {
   const io = new Server(server, {
@@ -20,10 +19,6 @@ const connectToSockets = (server) => {
       console.log(`${username} joined group ${groupID}`);
       
       try {
-        // FIX: Create a proper group document first or use the groupID as a string
-        // Since you're using custom groupIDs (not ObjectIds), we need a different approach
-        
-        // Option 1: Store groupID as a simple string field (recommended for your use case)
         const currUser = await User.findOneAndUpdate(
           { username: username },
           { 

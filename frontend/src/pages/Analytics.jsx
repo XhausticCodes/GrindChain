@@ -309,6 +309,92 @@ const Analytics = () => {
           </div>
         </div>
 
+        {/* Group Task Analytics Section - Only show for group view */}
+        {isGroupView && groupAnalytics?.groupTaskAnalytics && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+              <UsersIcon className="w-6 h-6" />
+              Group Task Structure Analytics
+            </h2>
+            
+            {/* Group Task Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-gradient-to-r from-emerald-800/50 to-emerald-900/50 backdrop-blur-sm border border-emerald-600/30 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-emerald-300 text-sm">Group Tasks</p>
+                    <p className="text-2xl font-bold text-white">
+                      {groupAnalytics.groupTaskAnalytics.totalGroupTasks}
+                    </p>
+                  </div>
+                  <UsersIcon className="w-6 h-6 text-emerald-400" />
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-blue-800/50 to-blue-900/50 backdrop-blur-sm border border-blue-600/30 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-300 text-sm">Individual Tasks</p>
+                    <p className="text-2xl font-bold text-white">
+                      {groupAnalytics.groupTaskAnalytics.totalIndividualTasks}
+                    </p>
+                  </div>
+                  <UserIcon className="w-6 h-6 text-blue-400" />
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-purple-800/50 to-purple-900/50 backdrop-blur-sm border border-purple-600/30 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-300 text-sm">Group Progress</p>
+                    <p className="text-2xl font-bold text-white">
+                      {groupAnalytics.groupTaskAnalytics.groupTaskProgress}%
+                    </p>
+                  </div>
+                  <CheckCircleIcon className="w-6 h-6 text-purple-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Task Headers Progress */}
+            {groupAnalytics.groupTaskAnalytics.taskHeaders.length > 0 && (
+              <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6">
+                <h3 className="text-purple-400 font-medium mb-4">Task Headers Progress</h3>
+                <div className="space-y-3">
+                  {groupAnalytics.groupTaskAnalytics.taskHeaders.map((header, index) => (
+                    <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <h4 className="text-white font-medium">{header.headerTitle}</h4>
+                          <p className="text-gray-400 text-sm">from: {header.taskTitle}</p>
+                        </div>
+                        {header.assignedTo && (
+                          <div className="text-xs text-blue-400 bg-blue-500/20 rounded px-2 py-1">
+                            Assigned
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-slate-600/50 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                            style={{ 
+                              width: `${header.totalSubtasks > 0 ? (header.completedSubtasks / header.totalSubtasks) * 100 : 0}%` 
+                            }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-gray-300">
+                          {header.completedSubtasks}/{header.totalSubtasks}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Progress Over Time */}

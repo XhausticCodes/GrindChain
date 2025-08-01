@@ -69,7 +69,7 @@ const geminiController = {
 
   createManualTask: async (req, res) => {
     try {
-      const { title, description, priority, duration, roadmapItems } = req.body;
+      const { title, description, priority, duration, roadmapItems, isGroupTask, taskHeaders } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -94,6 +94,20 @@ const geminiController = {
         });
       }
 
+      // Get current group ID if creating a group task
+      let currentGroupId = null;
+      if (isGroupTask && user.currentGroupId) {
+        // user.currentGroupId is actually a joinCode, we need to get the actual ObjectId
+        const Group = (await import('../models/Group.js')).default;
+        const group = await Group.findOne({ joinCode: user.currentGroupId });
+        if (group) {
+          currentGroupId = group._id;
+          console.log('Found group for manual task:', { joinCode: user.currentGroupId, objectId: currentGroupId });
+        } else {
+          console.warn('No group found for joinCode:', user.currentGroupId);
+        }
+      }
+
       // Calculate overall progress (0% for new tasks)
       const overallProgress = 0;
 
@@ -105,9 +119,12 @@ const geminiController = {
         roadmapItems: roadmapItems || [],
         aiGenerated: false,
         overallProgress,
-        completed: false, // **NEW: Initialize completed field**
+        completed: false,
         UserId: userId,
         milestones: [], // Manual tasks can have milestones added later
+        isGroupTask: !!isGroupTask,
+        groupId: currentGroupId,
+        taskHeaders: isGroupTask ? (taskHeaders || []) : undefined,
       };
 
       user.tasks.push(newTask);

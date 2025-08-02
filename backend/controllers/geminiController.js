@@ -50,7 +50,12 @@ const geminiController = {
       console.error("Task generation error:", error);
 
       let errorMessage = "Failed to generate task";
-      if (error.message.includes("Invalid JSON")) {
+      let errorCode = "GENERATION_ERROR";
+      
+      if (error.message.includes("STUDY_QUERY_REJECTED")) {
+        errorMessage = "Study-related queries are not supported. This service is limited to task generation only. Please provide a task or project description instead of homework, study questions, or educational content requests.";
+        errorCode = "STUDY_QUERY_REJECTED";
+      } else if (error.message.includes("Invalid JSON")) {
         errorMessage = "AI response formatting error. Please try again.";
       } else if (error.message.includes("User not found")) {
         errorMessage = "User session expired. Please log in again.";
@@ -58,9 +63,10 @@ const geminiController = {
         errorMessage = "AI service configuration error.";
       }
 
-      res.status(500).json({
+      res.status(errorCode === "STUDY_QUERY_REJECTED" ? 400 : 500).json({
         success: false,
         message: errorMessage,
+        code: errorCode,
         error:
           process.env.NODE_ENV === "development" ? error.message : undefined,
       });
@@ -336,9 +342,19 @@ const geminiController = {
       });
     } catch (error) {
       console.error("Group task structure generation error:", error);
-      res.status(500).json({
+      
+      let errorMessage = "Failed to generate group task structure";
+      let errorCode = "GENERATION_ERROR";
+      
+      if (error.message.includes("STUDY_QUERY_REJECTED")) {
+        errorMessage = "Study-related queries are not supported. This service is limited to task generation only. Please provide a project description instead of homework, study questions, or educational content requests.";
+        errorCode = "STUDY_QUERY_REJECTED";
+      }
+      
+      res.status(errorCode === "STUDY_QUERY_REJECTED" ? 400 : 500).json({
         success: false,
-        message: "Failed to generate group task structure",
+        message: errorMessage,
+        code: errorCode,
         error: process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     }

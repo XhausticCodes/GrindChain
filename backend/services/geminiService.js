@@ -30,6 +30,109 @@ class GeminiService {
     this.initialized = true;
   }
 
+  validateTaskDescription(taskDescription) {
+    // List of study-related keywords that should be rejected
+    const strongStudyKeywords = [
+      // Direct homework/academic keywords
+      'homework', 'assignment', 'exam', 'test', 'quiz', 'syllabus',
+      'curriculum', 'academic', 'school', 'college', 'university', 'student',
+      'solve this', 'find the answer', 'help me with', 'explain to me',
+      'i need help', 'can you help', 'i don\'t understand', 'i dont understand',
+      
+      // Subject-specific study keywords
+      'math problem', 'algebra equation', 'geometry proof', 'calculus derivative',
+      'physics formula', 'chemistry equation', 'biology concept', 'essay writing',
+      'research paper', 'thesis', 'dissertation', 'grammar rules',
+      
+      // Academic activities
+      'study for', 'revision for', 'practice for', 'prepare for exam'
+    ];
+
+    // Weaker keywords that are only problematic in certain contexts
+    const weakStudyKeywords = [
+      'study', 'learn', 'teach', 'tutor', 'lesson', 'chapter', 'course',
+      'education', 'solve', 'solution', 'answer', 'explain', 'explanation',
+      'review', 'practice', 'exercise', 'problem', 'question', 'formula',
+      'theory', 'concept', 'principle', 'rule', 'method', 'technique'
+    ];
+
+    const taskLower = taskDescription.toLowerCase();
+    
+    // Check for strong study keywords (these are almost always study-related)
+    const foundStrongKeywords = strongStudyKeywords.filter(keyword => 
+      taskLower.includes(keyword.toLowerCase())
+    );
+
+    // Check for weak study keywords
+    const foundWeakKeywords = weakStudyKeywords.filter(keyword => 
+      taskLower.includes(keyword.toLowerCase())
+    );
+
+    // Check for question patterns (? marks, "how", "what", "why" at the beginning)
+    const questionPatterns = [
+      /^\s*(what\s+is|how\s+does|why\s+does|when\s+does|where\s+does|which\s+is|who\s+is)\s+/i,
+      /\?\s*$/,  // Question mark at the end
+      /help\s+me\s+(with|understand|solve)/i,
+      /explain\s+(to\s+me\s+)?(what|how|why)/i,
+      /i\s+(don't|dont)\s+(understand|know|get)/i
+    ];
+
+    const hasQuestionPattern = questionPatterns.some(pattern => pattern.test(taskDescription));
+
+    // Strong task-related keywords that indicate legitimate project work
+    const taskRelatedKeywords = [
+      'project', 'build', 'create', 'develop', 'implement', 'design', 'make',
+      'website', 'app', 'application', 'system', 'platform', 'tool', 'game',
+      'automation', 'script', 'program', 'software', 'database',
+      'api', 'interface', 'dashboard', 'portfolio', 'business', 'startup',
+      'plan', 'organize', 'manage', 'schedule', 'complete', 'finish',
+      'deploy', 'launch', 'prototype', 'mvp', 'product', 'service'
+    ];
+
+    const hasTaskKeywords = taskRelatedKeywords.some(keyword => 
+      taskLower.includes(keyword.toLowerCase())
+    );
+
+    // More permissive logic:
+    // 1. If it has strong study keywords, reject it
+    if (foundStrongKeywords.length > 0) {
+      return {
+        isValid: false,
+        reason: 'strong_study_keywords',
+        foundKeywords: foundStrongKeywords.slice(0, 3),
+        message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
+      };
+    }
+
+    // 2. If it has task keywords, allow it even with some weak study words
+    if (hasTaskKeywords) {
+      return { isValid: true };
+    }
+
+    // 3. If it has question patterns AND multiple weak study keywords, reject it
+    if (hasQuestionPattern && foundWeakKeywords.length >= 2) {
+      return {
+        isValid: false,
+        reason: 'question_with_study_keywords',
+        foundKeywords: foundWeakKeywords.slice(0, 3),
+        message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
+      };
+    }
+
+    // 4. If it has many weak study keywords (4+), likely a study query
+    if (foundWeakKeywords.length >= 4) {
+      return {
+        isValid: false,
+        reason: 'multiple_study_keywords',
+        foundKeywords: foundWeakKeywords.slice(0, 3),
+        message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
+      };
+    }
+
+    // 5. Allow everything else
+    return { isValid: true };
+  }
+
   parseRoadmapToItems(roadmapData) {
     console.log('Parsing roadmap data:', roadmapData); // Debug log
     
@@ -155,6 +258,19 @@ class GeminiService {
     try {
       this.initialize();
 
+      // Validate task description to prevent study-related queries
+      const validation = this.validateTaskDescription(taskDescription);
+      console.log('🔍 Task validation result:', {
+        taskDescription: taskDescription,
+        isValid: validation.isValid,
+        reason: validation.reason,
+        foundKeywords: validation.foundKeywords
+      });
+      
+      if (!validation.isValid) {
+        throw new Error(`STUDY_QUERY_REJECTED: ${validation.message}`);
+      }
+
       // Smart duration detection from task description
       let detectedDuration = duration; // Default to passed duration (2 weeks)
       const taskLower = taskDescription.toLowerCase();
@@ -203,6 +319,18 @@ class GeminiService {
 
       // Build the prompt based on whether it's group mode or individual mode
       let prompt = `
+You are a TASK GENERATION AI strictly limited to creating actionable tasks and projects. 
+
+STRICT LIMITATIONS - DO NOT:
+- Answer study questions or provide educational explanations
+- Solve homework, assignments, or academic problems  
+- Explain concepts, theories, or academic subjects
+- Provide tutoring or learning content
+- Answer "what is", "how does", "explain" type questions
+- Help with exams, tests, or coursework
+
+ONLY CREATE: Practical tasks and projects that can be completed through action.
+
 Create a concise task with roadmap for: "${taskDescription}"
 Duration: ${detectedDuration}
 ${isGroupMode ? `Mode: Group Task (${groupMembers.length} members available for assignment)` : 'Mode: Individual Task'}
@@ -212,7 +340,14 @@ IMPORTANT GUIDELINES:
 2. Maximum 8-10 roadmap items total regardless of duration
 3. Each item should be substantial and meaningful, not micro-tasks
 4. Include relevant learning resources from GeeksForGeeks and PW (Physics Wallah)
-${isGroupMode ? '5. Create task headers with subtasks that can be distributed among team members' : ''}
+5. Focus on BUILDING, CREATING, DEVELOPING, or IMPLEMENTING something tangible
+${isGroupMode ? '6. Create task headers with subtasks that can be distributed among team members' : ''}
+
+If the request appears to be asking for study help, homework assistance, or educational explanations rather than a practical task, respond with:
+{
+  "error": "STUDY_QUERY_REJECTED",
+  "message": "This service is limited to task generation only. Please provide a task or project description instead of study-related queries."
+}
 
 Provide a JSON response with:
 {
@@ -331,9 +466,21 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
       let taskData;
       try {
         taskData = JSON.parse(responseText);
+        
+        // Check if the AI returned an error response for study queries
+        if (taskData.error === "STUDY_QUERY_REJECTED") {
+          throw new Error(`STUDY_QUERY_REJECTED: ${taskData.message}`);
+        }
+        
       } catch (parseError) {
         console.error("JSON Parse Error:", parseError);
         console.error("Response text:", responseText);
+        
+        // If it's already a study query rejection error, re-throw it
+        if (parseError.message.includes("STUDY_QUERY_REJECTED")) {
+          throw parseError;
+        }
+        
         throw new Error("Invalid JSON response from AI");
       }
 
@@ -436,7 +583,30 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
     try {
       this.initialize();
 
+      // Validate the description to prevent study-related queries
+      const validation = this.validateTaskDescription(description);
+      console.log('🔍 Group task validation result:', {
+        description: description,
+        isValid: validation.isValid,
+        reason: validation.reason,
+        foundKeywords: validation.foundKeywords
+      });
+      
+      if (!validation.isValid) {
+        throw new Error(`STUDY_QUERY_REJECTED: ${validation.message}`);
+      }
+
       const prompt = `
+You are a TASK GENERATION AI strictly limited to creating actionable tasks and projects.
+
+STRICT LIMITATIONS - DO NOT create structures for:
+- Study sessions, homework, or academic assignments
+- Educational content or learning materials
+- Exam preparation or test-taking strategies
+- Tutoring or teaching activities
+
+ONLY CREATE: Practical project structures that involve building, developing, or implementing something tangible.
+
 Generate a structured group task breakdown for the following project:
 
 Title: ${title}
@@ -445,15 +615,22 @@ Team Size: ${memberCount} members
 Duration: ${duration}
 
 Create a JSON response with task sections that can be distributed among team members. Each section should have:
-- title: A clear, specific section title
+- title: A clear, specific section title focused on actionable work
 - subtasks: An array of 2-4 specific subtasks for that section
 
 Rules:
 1. Create ${Math.min(memberCount + 1, 6)} main sections maximum
 2. Distribute work logically among sections
 3. Each section should be substantial enough for one person
-4. Subtasks should be specific and actionable
+4. Subtasks should be specific and actionable (building/creating/implementing)
 5. Consider dependencies between sections
+6. Focus on deliverable outcomes, not learning objectives
+
+If this appears to be a study-related request, respond with:
+{
+  "error": "STUDY_QUERY_REJECTED", 
+  "message": "This service is limited to task generation only. Please provide a project description instead of study-related queries."
+}
 
 Return ONLY a valid JSON object in this format:
 {
@@ -492,9 +669,20 @@ Return ONLY a valid JSON object in this format:
       let parsedResponse;
       try {
         parsedResponse = JSON.parse(cleanedResponse);
+        
+        // Check if the AI returned an error response for study queries
+        if (parsedResponse.error === "STUDY_QUERY_REJECTED") {
+          throw new Error(`STUDY_QUERY_REJECTED: ${parsedResponse.message}`);
+        }
+        
       } catch (parseError) {
         console.error('Failed to parse Gemini response:', parseError);
         console.error('Raw response:', text);
+        
+        // If it's already a study query rejection error, re-throw it
+        if (parseError.message.includes("STUDY_QUERY_REJECTED")) {
+          throw parseError;
+        }
         
         // Fallback: create default structure
         parsedResponse = {

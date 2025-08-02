@@ -40,7 +40,7 @@ const LoginPage = () => {
       {/* Header with CurvedLoop */}
       <header className="relative z-10 w-full h-[20vh] flex items-center justify-center">
         <div className="w-[50vw] mx-auto flex items-center justify-center -mt-35">
-          <CurvedLoop marqueeText="Welcome to GrindHub✦" />
+          <CurvedLoop marqueeText="Welcome to GrindChain✦" />
         </div>
       </header>
       {/* Main content below header */}

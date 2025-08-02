@@ -201,7 +201,7 @@ const Landing = () => {
               {/* Logo */}
               <div className="flex items-center">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent yellow-glow">
-                  <a href="#">GRINDHUB</a>
+                  <a href="#">GRINDCHAIN</a>
                 </h1>
               </div>
 
@@ -282,7 +282,7 @@ const Landing = () => {
               className="text-8xl md:text-8xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent yellow-glow-title tracking-widest"
               style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
             >
-              GRINDHUB
+              GRINDCHAIN
             </h1>
             <p
               className="text-2xl md:text-3xl text-white/90 mb-10 font-light tracking-wider uppercase navbar-glow-title"
@@ -516,8 +516,8 @@ const Landing = () => {
                   Our Mission
                 </h3>
                 <p className="text-white/70 text-lg mb-6">
-                  GrindHub was born from the idea that productivity should be as
-                  enchanting as it is effective. We combine cutting-edge AI
+                  GrindChain was born from the idea that productivity should be
+                  as enchanting as it is effective. We combine cutting-edge AI
                   technology with intuitive design to create a platform that not
                   only helps you achieve your goals but makes the journey
                   enjoyable.
@@ -650,7 +650,7 @@ const Landing = () => {
           style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
         >
           <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent mb-2">
-            GRINDHUB
+            GRINDCHAIN
           </h3>
           <p className="text-yellow-500/80 mb-6">
             Where Magic Meets Productivity

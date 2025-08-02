@@ -22,17 +22,17 @@ const Upgrade = () => {
       period: "forever",
       description: "Perfect for getting started",
       features: [
-        "Up to 5 tasks per day",
-        "Basic AI task generation",
+        "Individual Task Generation",
+        "Up to 3 AI Tasks Generation",
         "Simple analytics",
-        "Email support",
         "1 study group",
-        "Basic notifications",
       ],
       limitations: [
         "Limited AI features",
         "No advanced analytics",
         "No priority support",
+        "No Custom Themes",
+        "No Email Support"
       ],
       buttonText: "Current Grind",
       buttonStyle: "bg-gray-600 text-white cursor-not-allowed",
@@ -45,18 +45,18 @@ const Upgrade = () => {
       period: "per month",
       description: "Most popular for serious learners",
       features: [
-        "Unlimited tasks",
-        "Advanced AI task generation",
+        "Everything in Basic",
+        "Up to 10 AI task generation",
         "Detailed analytics & insights",
-        "Priority support",
-        "Unlimited study groups",
-        "Smart notifications",
+        "Email support",
+        "Upto 5 study groups",
         "Custom themes",
         "Export data",
-        "Advanced collaboration tools",
         "Progress tracking",
       ],
-      limitations: [],
+      limitations: [
+        "Limited AI features",
+      ],
       buttonText: "Grind with Plus",
       buttonStyle:
         "bg-gradient-to-r from-amber-500 to-yellow-600 text-white hover:from-amber-600 hover:to-yellow-700",
@@ -75,7 +75,7 @@ const Upgrade = () => {
         "API access",
         "Custom integrations",
         "Dedicated support",
-        "White-label options",
+        "Advanced Resouces",
         "Advanced security",
         "SLA guarantees",
         "Training sessions",
@@ -125,7 +125,7 @@ const Upgrade = () => {
             Choose Your Grind
           </h1>
           <p className="text-xl text-white/70 max-w-2xl mx-auto">
-            Unlock the full potential of GrindHub with our premium Grind
+            Unlock the full potential of GrindChain with our premium Grind
           </p>
         </div>
 
@@ -222,7 +222,9 @@ const Upgrade = () => {
           <div className="grid md:grid-cols-4 gap-4 text-sm">
             <div className="font-semibold text-white">Feature</div>
             <div className="text-center font-semibold text-white">Free</div>
-            <div className="text-center font-semibold text-yellow-400">Plus</div>
+            <div className="text-center font-semibold text-yellow-400">
+              Plus
+            </div>
             <div className="text-center font-semibold text-purple-400">
               ULTRA
             </div>

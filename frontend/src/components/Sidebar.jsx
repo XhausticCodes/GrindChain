@@ -40,7 +40,7 @@ const Sidebar = () => {
             if (item.name === "PROFILE") {
               return (
                 <React.Fragment key={idx}>
-                  {user.groupID ? (
+                  {user.currentGroupId ? (
                     <NavLink
                       to={`/chatroom`}
                       className={({ isActive }) => {

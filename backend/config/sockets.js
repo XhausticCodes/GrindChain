@@ -41,7 +41,7 @@ const connectToSockets = (server) => {
         try {
           const updatedUser = await User.findOneAndUpdate(
             { _id: userId },
-            { isAdmin: true, admin: true },
+            { isAdmin: true, admin: true, currentGroupId: newGroup.joinCode },
             { new: true }
           );
           if (!updatedUser) {
@@ -54,6 +54,7 @@ const connectToSockets = (server) => {
           callback({ success: false, message: "Error updating user" });
         }
 
+        console.log(newGroup._id);
         return callback({ success: true, groupId: newGroup._id });
       } catch (error) {
         console.error("Error creating group:", error);

@@ -20,6 +20,7 @@ GrindChain is a comprehensive task management application designed to help users
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: React with React Router DOM
 - **Styling**: Tailwind CSS, Heroicons, Heroui
 - **Animation**: Framer Motion, GSAP, OGL
@@ -28,6 +29,7 @@ GrindChain is a comprehensive task management application designed to help users
 - **Build Tool**: Vite
 
 ### Backend
+
 - **Runtime**: Node.js with Express.js
 - **Real-time**: Socket.IO
 - **Database**: MongoDB
@@ -36,6 +38,7 @@ GrindChain is a comprehensive task management application designed to help users
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (>=16.x)
 - npm (>=8.x)
 - MongoDB Atlas account or local MongoDB instance
@@ -43,12 +46,14 @@ GrindChain is a comprehensive task management application designed to help users
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/GrindChain.git
 cd GrindChain
 ```
 
 2. Install dependencies for both frontend and backend:
+
 ```bash
 cd frontend && npm install
 cd ../backend && npm install
@@ -59,18 +64,21 @@ cd ../backend && npm install
 ### Running the Application
 
 1. Start the backend server:
+
 ```bash
 cd backend
 npm run dev
 ```
 
 2. Start the frontend development server:
+
 ```bash
 cd frontend
 npm run dev
 ```
 
 The application should now be running:
+
 - Frontend: http://localhost:5173
 - Backend: http://localhost:5001
 

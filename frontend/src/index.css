@@ -107,6 +107,162 @@
   pointer-events: none;
 }
 
+/* Horizontal scroll features animations */
+.feature-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.feature-card-icon {
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-card-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Scroll indicator animation */
+.scroll-indicator {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Horizontal scroll container */
+.horizontal-scroll-container {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Hide horizontal scrollbar for the features section */
+.features-section {
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar for webkit browsers */
+.features-section::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.features-section {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbar for the entire page during horizontal scroll */
+body.horizontal-scroll-active {
+  overflow-x: hidden;
+}
+
+body.horizontal-scroll-active::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure no horizontal scrollbar appears anywhere */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Hide horizontal scrollbar globally */
+::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
+/* Hide vertical scrollbar globally */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbar for the entire landing page */
+.bg-black {
+  overflow-x: hidden;
+}
+
+/* Ensure landing page has no scrollbars */
+.min-h-screen {
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar specifically for landing page */
+.hide-scrollbar-landing {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  overflow-x: hidden;
+}
+
+.hide-scrollbar-landing::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.hide-scrollbar-landing::-webkit-scrollbar-horizontal {
+  display: none;
+}
+
+.hide-scrollbar-landing::-webkit-scrollbar-vertical {
+  display: none;
+}
+
+/* Custom scrollbar for upgrade page */
+.upgrade-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(251, 191, 36, 0.3) transparent;
+}
+
+.upgrade-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.upgrade-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.upgrade-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.3);
+  border-radius: 4px;
+}
+
+.upgrade-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.5);
+}
+
+/* Smooth section transitions */
+section {
+  transition: all 0.3s ease-out;
+}
+
+/* Features section specific styling */
+#features {
+  transition: none;
+}
+
+/* Ensure smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
 @keyframes rotate-slow {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -128,4 +284,132 @@ body, html, * {
 *[cursor='pointer'],
 *:active {
   cursor: url('./assets/magicStickHit.png') 16 0, pointer !important;
+}
+
+/* Navbar text glow effect */
+.navbar-glow {
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 255, 255, 0.4),
+    0 0 30px rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(255, 255, 255, 0.1);
+  transition: text-shadow 0.3s ease;
+}
+
+.navbar-glow:hover {
+  text-shadow: 
+  0 0 15px rgba(251, 191, 36, 0.8),
+  0 0 25px rgba(251, 191, 36, 0.6),
+  0 0 35px rgba(251, 191, 36, 0.4),
+  0 0 45px rgba(251, 191, 36, 0.2);
+}
+
+.navbar-glow-title {
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.2),
+    0 0 30px rgba(255, 255, 255, 0.1),
+    0 0 40px rgba(255, 255, 255, 0.05);
+  transition: text-shadow 0.3s ease;
+}
+
+/* .navbar-glow-p {
+  text-shadow: 
+    0 0 10px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(0, 0, 0, 0.1),
+    0 0 80px rgb(0, 0, 0);
+  transition: text-shadow 0.3s ease;
+} */
+
+/* Yellow glow effect for GRINDHUB logo */
+.yellow-glow {
+  text-shadow: 
+  0 0 10px rgba(251, 191, 36, 0.4),
+    0 0 20px rgba(251, 191, 36, 0.2),
+    0 0 30px rgba(251, 191, 36, 0.1),
+    0 0 40px rgba(251, 191, 36, 0.05);    
+  transition: text-shadow 0.3s ease;
+}
+
+.yellow-glow:hover {
+  text-shadow: 
+   0 0 15px rgba(251, 191, 36, 0.5),
+   0 0 25px rgba(251, 191, 36, 0.3),
+   0 0 35px rgba(251, 191, 36, 0.2),
+   0 0 45px rgba(251, 191, 36, 0.1);
+}
+
+/* Yellow glow for titles */
+.yellow-glow-title {
+  text-shadow: 
+  0 0 10px rgba(251, 191, 36, 0.4),
+    0 0 20px rgba(251, 191, 36, 0.2),
+    0 0 30px rgba(251, 191, 36, 0.1),
+    0 0 40px rgba(251, 191, 36, 0.05);    
+  transition: text-shadow 0.3s ease;
+}
+
+/* Button glow effect for signup button */
+.button-glow {
+  box-shadow: 
+    0 0 10px rgba(251, 191, 36, 0.4),
+    0 0 20px rgba(251, 191, 36, 0.2),
+    0 0 30px rgba(251, 191, 36, 0.1);
+  transition: all 0.3s ease;
+}
+
+.button-glow:hover {
+  box-shadow: 
+    0 0 15px rgba(251, 191, 36, 0.4),
+    0 0 25px rgba(251, 191, 36, 0.3),
+    0 0 35px rgba(251, 191, 36, 0.2),
+    0 0 45px rgba(251, 191, 36, 0.1);
+  transform: scale(1.03);
+}
+
+.button-glow-hero {
+  box-shadow: 
+    0 0 10px rgba(251, 191, 36, 0.4),
+    0 0 20px rgba(251, 191, 36, 0.2),
+    0 0 30px rgba(251, 191, 36, 0.1);
+  transition: all 0.3s ease;
+}
+
+.button-glow-hero:hover {
+  box-shadow: 
+    0 0 15px rgba(251, 191, 36, 0.4),
+    0 0 25px rgba(251, 191, 36, 0.3),
+    0 0 35px rgba(251, 191, 36, 0.2),
+    0 0 45px rgba(251, 191, 36, 0.1);
+  
+}
+
+/* Galaxy background styling */
+.galaxy-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Ensure content is above galaxy background */
+.features-section > *:not(.galaxy-background),
+#how-it-works > *:not(.galaxy-background) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Add subtle overlay for better text readability */
+.galaxy-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
 }

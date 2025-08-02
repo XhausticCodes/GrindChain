@@ -2,11 +2,11 @@ import React from "react";
 
 const WelcomeBanner = ({ user, onNewTask, onDiscover }) => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/90 via-indigo-900/90 to-blue-900/90 backdrop-blur-sm border border-purple-500/30 p-4 rounded-xl w-full h-full shadow-2xl">
+    <div className="relative overflow-hidden blur-theme2 backdrop-blur-sm border border-purple-500/30 p-4 rounded-xl w-full h-full shadow-2xl">
       {/* Magical background effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-cyan-600/20 animate-pulse"></div>
+      {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-cyan-600/20 "></div>
       <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/10 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-0 left-0 w-20 h-20 bg-purple-400/10 rounded-full blur-xl"></div>
+      <div className="absolute bottom-0 left-0 w-20 h-20 bg-purple-400/10 rounded-full blur-xl"></div> */}
       
       <div className="relative z-10 flex items-center justify-between h-full">
         <div className="flex flex-col justify-center">
@@ -33,12 +33,12 @@ const WelcomeBanner = ({ user, onNewTask, onDiscover }) => {
         </div>
         
         {/* Compact User Avatar */}
-        <div className="relative w-20 h-20 flex items-center justify-center">
+        <div className="relative w-38 h-38 flex items-center justify-center">
           {/* Magical glow effects */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400/30 to-amber-500/30 blur-lg animate-pulse"></div>
           
           {/* Avatar container */}
-          <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-400/60 shadow-lg bg-slate-800/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-yellow-400/60 shadow-lg bg-slate-800/80 backdrop-blur-sm flex items-center justify-center">
             {user?.avatar ? (
               <img
                 src={user.avatar}

@@ -12,6 +12,8 @@ import Layout from "./components/Layout";
 import GroupChat from "./pages/GroupChat";
 import CreateGroup from "./pages/CreateGroup";
 import whiteOwl from "./assets/whiteOwl.png";
+import Landing from "./pages/Landing";
+import Upgrade from "./pages/Upgrade";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
@@ -43,7 +45,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return <LoadingSpinner />;
   }
-  return authenticated ? children : <Navigate to="/login" replace />;
+  return authenticated ? children : <Navigate to="/landing" replace />;
 };
 
 // Public Route Component (redirect if already authenticated)
@@ -58,6 +60,14 @@ const PublicRoute = ({ children }) => {
 const AppRoutes = () => (
   <Suspense fallback={<LoadingSpinner />}>
     <Routes>
+      <Route
+        path="/landing"
+        element={
+          <PublicRoute>
+            <Landing />
+          </PublicRoute>
+        }
+      />
       <Route
         path="/login"
         element={
@@ -91,6 +101,7 @@ const AppRoutes = () => (
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
         <Route path="create-group" element={<CreateGroup />} />
+        <Route path="upgrade" element={<Upgrade />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

@@ -105,7 +105,6 @@ const AppRoutes = () => (
         <Route path="chatroom/:groupId" element={<GroupChat />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="create-group" element={<CreateGroup />} />
         <Route path="upgrade" element={<Upgrade />} />
         {/* <Route path="create-group" element={<CreateGroup />} /> */}
         <Route path="create-group" element={<CreatingGroup2 />} />

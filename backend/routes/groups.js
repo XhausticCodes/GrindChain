@@ -20,6 +20,9 @@ router.post('/join', createOrJoinGroup);
 // Get current user's group
 router.get('/current', getCurrentGroup);
 
+// Debug: Get all groups (must be before /:groupId)
+router.get('/debug/all', getAllGroups);
+
 // Get group details
 router.get('/:groupId', getGroupDetails);
 
@@ -28,8 +31,5 @@ router.put('/:groupId', updateGroup);
 
 // Leave group
 router.delete('/:groupId/leave', leaveGroup);
-
-// Debug: Get all groups
-router.get('/debug/all', getAllGroups);
 
 export default router;

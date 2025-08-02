@@ -279,6 +279,48 @@ const authController = {
       });
     }
   },
+
+  clearCurrentGroup: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { 
+          currentGroupId: null,
+          $pull: { groups: { $exists: true } } // Remove all group references
+        },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Current group cleared successfully",
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          description: user.description,
+          currentGroupId: user.currentGroupId,
+          groups: user.groups,
+        },
+      });
+    } catch (error) {
+      console.error("Clear current group error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to clear current group",
+      });
+    }
+  },
 };
 
 export default authController;

@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function ChatMessages({ messages, className }) {
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   // Add 'scrollbar-none' to hide scrollbar if using Tailwind, otherwise fallback to custom CSS
   const combinedClass =
     (className || "flex-1 min-h-0 overflow-y-auto px-6 py-4") +
     " scrollbar-none hide-scrollbar space-y-3 mt-3";
+    
   return (
     <div className={combinedClass}>
       {messages.map((msg) => (
@@ -20,7 +28,7 @@ export default function ChatMessages({ messages, className }) {
             <img
               src={msg.avatar}
               alt={msg.sender}
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600"
             />
             <div
               className={`px-4 py-2 rounded-2xl shadow text-sm ${
@@ -29,7 +37,7 @@ export default function ChatMessages({ messages, className }) {
                   : "bg-gray-200 dark:bg-white/20 text-gray-900 dark:text-white"
               }`}
             >
-              {msg.text}
+              {msg.text || msg.message}
               <div className="text-xs text-right mt-1 opacity-60">
                 {msg.time}
               </div>
@@ -37,6 +45,8 @@ export default function ChatMessages({ messages, className }) {
           </div>
         </div>
       ))}
+      {/* Auto-scroll anchor */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }

@@ -6,7 +6,11 @@ const groupSchema = new Schema({
     required: true,
     trim: true,
     maxlength: 100
-  },  
+  },
+  avatar: {
+    type: String,
+    default: null
+  },
   description: {
     type: String,
     maxlength: 500,
@@ -16,10 +20,10 @@ const groupSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'User' 
   }],
-  admins: [{ 
+  admins: { 
     type: Schema.Types.ObjectId, 
     ref: 'User' 
-  }],
+  },
   goal: { 
     type: Schema.Types.ObjectId, 
     ref: 'Goal' 

@@ -10,5 +10,6 @@ router.get("/check", authController.checkAuth);
 
 router.get("/me", auth, authController.getMe);
 router.patch("/me", auth, authController.updateMe);
+router.post("/clear-group", auth, authController.clearCurrentGroup);
 
 export default router;

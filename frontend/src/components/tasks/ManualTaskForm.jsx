@@ -18,6 +18,7 @@ const ManualTaskForm = ({ onTaskCreated }) => {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const [assignments, setAssignments] = useState({});
+  const [generateLoading, setGenerateLoading] = useState(false);
 
   // Fetch group members when component mounts
   useEffect(() => {
@@ -153,6 +154,103 @@ const ManualTaskForm = ({ onTaskCreated }) => {
       ...prev,
       taskHeaders: newHeaders,
     }));
+  };
+
+  // Generate Group Task Suggestions
+  const generateGroupTaskSuggestions = async () => {
+    if (!formData.title.trim() || !formData.description.trim()) {
+      alert('Please fill in title and description first');
+      return;
+    }
+
+    setGenerateLoading(true);
+    try {
+      const response = await fetch('/api/ai/generate-group-task-structure', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          memberCount: groupMembers.length,
+          duration: formData.duration
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.taskHeaders) {
+        // Smart assignment: distribute tasks based on member workload
+        const membersWithWorkload = await getMemberWorkloads();
+        const headersWithSmartAssignments = data.taskHeaders.map((header, index) => {
+          // Find member with least workload for this task
+          const assignedMember = getOptimalMemberForTask(membersWithWorkload, header);
+          return {
+            ...header,
+            assignedTo: assignedMember ? assignedMember._id : ''
+          };
+        });
+        
+        setFormData(prev => ({
+          ...prev,
+          taskHeaders: headersWithSmartAssignments,
+          isGroupTask: true
+        }));
+      } else {
+        console.error('Failed to generate group task structure:', data.message);
+        alert('Failed to generate task suggestions. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error generating group task structure:', error);
+      alert('Error generating task suggestions. Please try again.');
+    } finally {
+      setGenerateLoading(false);
+    }
+  };
+
+  // Helper function to get member workloads
+  const getMemberWorkloads = async () => {
+    try {
+      const response = await fetch('/api/ai/group-member-workloads', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.memberWorkloads || groupMembers.map(member => ({
+          ...member,
+          currentTasks: 0,
+          completionRate: 1.0
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching member workloads:', error);
+    }
+    
+    // Fallback: return members with default workload
+    return groupMembers.map(member => ({
+      ...member,
+      currentTasks: 0,
+      completionRate: 1.0
+    }));
+  };
+
+  // Helper function to find optimal member for a task
+  const getOptimalMemberForTask = (membersWithWorkload, taskHeader) => {
+    if (membersWithWorkload.length === 0) return null;
+    
+    // Sort members by current workload (ascending) and completion rate (descending)
+    const sortedMembers = [...membersWithWorkload].sort((a, b) => {
+      const workloadDiff = a.currentTasks - b.currentTasks;
+      if (workloadDiff !== 0) return workloadDiff;
+      return b.completionRate - a.completionRate;
+    });
+    
+    return sortedMembers[0];
   };
 
   // Assignment Functions
@@ -428,9 +526,33 @@ const ManualTaskForm = ({ onTaskCreated }) => {
               <div className="min-h-[40px] flex items-center">
                 {formData.isGroupTask ? (
                   <div className="flex items-center justify-between w-full">
-                    <p className="text-xs text-gray-400">
-                      Group tasks can be divided into sections and assigned to different team members
-                    </p>
+                    <div className="flex flex-col">
+                      <p className="text-xs text-gray-400">
+                        Group tasks can be divided into sections and assigned to different team members
+                      </p>
+                      {formData.title.trim() && formData.description.trim() && (
+                        <button
+                          type="button"
+                          onClick={generateGroupTaskSuggestions}
+                          disabled={generateLoading}
+                          className="mt-2 text-xs text-green-400 hover:text-green-300 flex items-center gap-1 self-start"
+                        >
+                          {generateLoading ? (
+                            <>
+                              <div className="w-3 h-3 border border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              AI Generate Sections
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                     {formData.taskHeaders.length > 0 && (
                       <button
                         type="button"
@@ -468,14 +590,38 @@ const ManualTaskForm = ({ onTaskCreated }) => {
                 <label className="block text-sm font-medium text-gray-300">
                   Task Sections (Headers)
                 </label>
-                <button
-                  type="button"
-                  onClick={addTaskHeader}
-                  className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
-                >
-                  <PlusIcon className="w-4 h-4" />
-                  Add Section
-                </button>
+                <div className="flex gap-2">
+                  {formData.taskHeaders.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Auto-assign all sections in round-robin
+                        const newHeaders = [...formData.taskHeaders];
+                        newHeaders.forEach((header, index) => {
+                          if (groupMembers.length > 0) {
+                            header.assignedTo = groupMembers[index % groupMembers.length]._id;
+                          }
+                        });
+                        setFormData(prev => ({
+                          ...prev,
+                          taskHeaders: newHeaders
+                        }));
+                      }}
+                      className="text-green-400 hover:text-green-300 text-xs flex items-center gap-1"
+                    >
+                      <UsersIcon className="w-3 h-3" />
+                      Auto-assign All
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={addTaskHeader}
+                    className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    Add Section
+                  </button>
+                </div>
               </div>
               
               <div className="space-y-4">

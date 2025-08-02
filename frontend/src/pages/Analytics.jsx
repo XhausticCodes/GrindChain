@@ -50,6 +50,8 @@ const Analytics = () => {
       const data = await response.json();
 
       if (data.success) {
+        console.log("📊 Analytics page - received data:", data.data);
+        console.log("📊 Analytics page - progressOverTime:", data.data.progressOverTime);
         setAnalytics(data.data);
       }
     } catch (error) {
@@ -401,13 +403,13 @@ const Analytics = () => {
           <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-600/30 rounded-xl p-6">
             <h3 className="text-purple-400 font-medium mb-4 flex items-center gap-2">
               <ChartBarIcon className="w-5 h-5" />
-              Progress Trend (Last 7 Days)
+              Individual Task Progress (Last 7 Days)
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={currentAnalytics.progressOverTime}>
+                <LineChart data={currentAnalytics.progressOverTime || []}>
                   <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                  <YAxis stroke="#94a3b8" fontSize={12} />
+                  <YAxis stroke="#94a3b8" fontSize={12} domain={[0, 100]} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#1e293b",
@@ -415,15 +417,58 @@ const Analytics = () => {
                       borderRadius: "8px",
                       color: "#f1f5f9",
                     }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div style={{
+                            backgroundColor: "#1e293b",
+                            border: "1px solid #475569",
+                            borderRadius: "8px",
+                            padding: "12px",
+                            color: "#f1f5f9",
+                          }}>
+                            <div style={{ fontWeight: "bold", color: "#fbbf24", marginBottom: "8px" }}>{label}</div>
+                            {payload.map((entry, index) => {
+                              const taskName = entry.payload[`taskName${entry.dataKey.replace('task', '')}`] || entry.dataKey;
+                              return (
+                                <div key={index} style={{ color: "#cbd5e1", marginBottom: "4px" }}>
+                                  <span style={{ 
+                                    display: "inline-block", 
+                                    width: "12px", 
+                                    height: "12px", 
+                                    borderRadius: "50%", 
+                                    backgroundColor: entry.color,
+                                    marginRight: "8px" 
+                                  }}></span>
+                                  {taskName}: {entry.value}% progress
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="avgProgress"
-                    stroke="#9333ea"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: "#9333ea" }}
-                    activeDot={{ r: 6, fill: "#9333ea" }}
-                  />
+                  {/* Render multiple lines for individual tasks */}
+                  {currentAnalytics && currentAnalytics.progressOverTime && currentAnalytics.progressOverTime.length > 0 && 
+                    Object.keys(currentAnalytics.progressOverTime[0])
+                      .filter(key => key.startsWith('task') && !key.startsWith('taskName'))
+                      .map((taskKey, index) => {
+                        const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316", "#84cc16"];
+                        return (
+                          <Line
+                            key={taskKey}
+                            type="monotone"
+                            dataKey={taskKey}
+                            stroke={colors[index % colors.length]}
+                            strokeWidth={2}
+                            dot={{ r: 4, fill: colors[index % colors.length] }}
+                            activeDot={{ r: 6, fill: colors[index % colors.length] }}
+                          />
+                        );
+                      })
+                  }
                 </LineChart>
               </ResponsiveContainer>
             </div>

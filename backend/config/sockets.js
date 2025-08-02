@@ -31,10 +31,17 @@ const connectToSockets = (server) => {
         });
         await newGroup.save();
 
+        // try{
+        //   const currUser = await User.findById(userId);
+        //   if(!currUser) return callback({success: true, message: "what the fuck is going on here"})
+        // } catch (e) {
+        //   return callback({success: false, message: "what the fuck is goin on here +1"});
+        // }
+
         try {
           const updatedUser = await User.findOneAndUpdate(
-            { _id: userId, isAdmin: false },
-            { isAdmin: true },
+            { _id: userId },
+            { isAdmin: true, admin: true },
             { new: true }
           );
           if (!updatedUser) {

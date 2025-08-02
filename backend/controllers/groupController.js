@@ -227,15 +227,21 @@ export const leaveGroup = async (req, res) => {
 
     // Remove user from group
     group.members = group.members.filter(memberId => !memberId.equals(userObjectId));
-    group.admins = group.admins.filter(adminId => !adminId.equals(userObjectId));
+    
+    // Handle admin removal - check if admins is array or single value
+    if (Array.isArray(group.admins)) {
+      group.admins = group.admins.filter(adminId => !adminId.equals(userObjectId));
+    } else if (group.admins && group.admins.equals(userObjectId)) {
+      group.admins = null;
+    }
 
     // If no members left, delete the group
     if (group.members.length === 0) {
       await Group.findByIdAndDelete(group._id);
     } else {
       // If user was the only admin, make the first member an admin
-      if (group.admins.length === 0 && group.members.length > 0) {
-        group.admins.push(group.members[0]);
+      if ((!group.admins || (Array.isArray(group.admins) && group.admins.length === 0)) && group.members.length > 0) {
+        group.admins = group.members[0];
       }
       await group.save();
     }
@@ -258,6 +264,7 @@ export const leaveGroup = async (req, res) => {
     });
   }
 };
+
 
 // Get group details
 export const getGroupDetails = async (req, res) => {
@@ -372,6 +379,23 @@ export const getCurrentGroup = async (req, res) => {
     // Convert userId to ObjectId for comparison
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
+    // Check if user is admin - handle different admin field structures
+    let isAdmin = false;
+    try {
+      if (Array.isArray(group.admins)) {
+        isAdmin = group.admins.some(adminId => adminId.equals(userObjectId));
+      } else if (group.admin) {
+        // Handle single admin field (could be ObjectId or string)
+        isAdmin = group.admin.equals ? group.admin.equals(userObjectId) : group.admin.toString() === userObjectId.toString();
+      } else if (group.createdBy) {
+        // Fallback to createdBy field
+        isAdmin = group.createdBy.equals ? group.createdBy.equals(userObjectId) : group.createdBy.toString() === userObjectId.toString();
+      }
+    } catch (adminCheckError) {
+      console.error('Error checking admin status:', adminCheckError);
+      isAdmin = false;
+    }
+
     res.json({
       success: true,
       group: {
@@ -382,7 +406,8 @@ export const getCurrentGroup = async (req, res) => {
         joinCode: group.joinCode,
         memberCount: group.members.length,
         members: group.members,
-        isAdmin: group.admins.some(adminId => adminId.equals(userObjectId)),
+        admin: group.admin || group.createdBy, // Include admin field for frontend
+        isAdmin: isAdmin,
         createdAt: group.createdAt
       }
     });

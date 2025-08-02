@@ -9,7 +9,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
 import GroupChat from "./pages/GroupChat";
-import CreateGroup from "./pages/CreateGroup";
+// import CreateGroup from "./pages/CreateGroup";
 import JoinGroupPage from "./pages/JoinGroupPage";
 import whiteOwl from "./assets/whiteOwl.png";
 import CreatingGroup2 from "./pages/CreatingGroup2";

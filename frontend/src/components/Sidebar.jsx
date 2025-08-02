@@ -24,7 +24,7 @@ const Sidebar = () => {
       style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
     >
       <h1 className="text-3xl text-center font-semibold mb-4 tracking-widest text-yellow-500 analytics-glow border-b-1 border-yellow-500 pb-2">
-        GRINDHUB
+        GRINDCHAIN
       </h1>
       <nav className="flex flex-col space-y-5 flex-1">
         <div

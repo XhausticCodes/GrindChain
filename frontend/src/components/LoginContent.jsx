@@ -15,7 +15,7 @@ const LoginContent = () => {
         WELCOME BACK
       </h1>
       <p className="mb-6 text-lg text-white/80 text-center">
-        Sign in to continue to GrindHub
+        Sign in to continue to GrindChain
       </p>
       <LoginForm />
     </div>

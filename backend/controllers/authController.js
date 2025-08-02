@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import { validateSignupData, validateLoginData } from "../utils/validation.js";
+import mongoose from "mongoose";
+import { safeDbOperation, checkDatabaseConnection } from "../utils/database.js";
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -29,9 +31,23 @@ const authController = {
         });
       }
 
-      const existingUser = await User.findOne({
-        $or: [{ email: email.toLowerCase() }, { username }],
-      });
+      // Check database connection before attempting signup
+      const dbConnection = checkDatabaseConnection();
+      if (!dbConnection.isConnected) {
+        return res.status(503).json({
+          success: false,
+          message: "Database unavailable. Please try again later.",
+          code: "DATABASE_UNAVAILABLE"
+        });
+      }
+
+      // Use safe database operation for checking existing user
+      const existingUser = await safeDbOperation(
+        async () => await User.findOne({
+          $or: [{ email: email.toLowerCase() }, { username }],
+        }),
+        null // fallback value
+      );
 
       if (existingUser) {
         const field =
@@ -98,7 +114,22 @@ const authController = {
         });
       }
 
-      const user = await User.findOne({ email: email.toLowerCase() });
+      // Check database connection before attempting login
+      const dbConnection = checkDatabaseConnection();
+      if (!dbConnection.isConnected) {
+        return res.status(503).json({
+          success: false,
+          message: "Database unavailable. Please try again later.",
+          code: "DATABASE_UNAVAILABLE"
+        });
+      }
+
+      // Use safe database operation for user lookup
+      const user = await safeDbOperation(
+        async () => await User.findOne({ email: email.toLowerCase() }),
+        null // fallback value
+      );
+
       if (!user || !user.isActive) {
         return res.status(401).json({
           success: false,

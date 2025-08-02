@@ -1,4 +1,4 @@
-# GrindChain - Task Management Application 🚀
+# GrindHub - Task Management Application 🚀
 
 ![GrindChain Banner](https://iili.io/Fk8Exv2.png)
 

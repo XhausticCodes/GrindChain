@@ -361,6 +361,41 @@ const TaskList = ({
                             </div>
                           </div>
                         )}
+                        {/* Group Task Assignments */}
+                        {task.isGroupTask && task.taskHeaders && task.taskHeaders.length > 0 && (
+                          <div className="mb-2">
+                            <div className="flex items-center gap-1 mb-1">
+                              <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-4h2v4h12v-4h2v4c0 1.11-.89 2-2 2H6c-1.11 0-2-.89-2-2z"/>
+                              </svg>
+                              <span className="text-xs text-gray-400">
+                                Assignments
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {task.taskHeaders.map((header, index) => {
+                                const assignedMember = groupMembers.find(member => member._id === header.assignedTo);
+                                return (
+                                  <div 
+                                    key={index} 
+                                    className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 ${
+                                      header.assignedTo === user._id
+                                        ? 'bg-orange-500/20 border-orange-500/30 text-orange-300'
+                                        : assignedMember
+                                        ? 'bg-blue-500/20 border-blue-500/30 text-blue-300'
+                                        : 'bg-gray-500/20 border-gray-500/30 text-gray-400'
+                                    }`}
+                                  >
+                                    <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                                    <span className="truncate max-w-20">
+                                      {header.title}: {assignedMember?.username || 'Unassigned'}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <button

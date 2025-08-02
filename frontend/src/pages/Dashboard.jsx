@@ -41,6 +41,11 @@ const Dashboard = () => {
         analytics: analyticsData.success ? analyticsData.data : null,
         loading: false,
       });
+
+      // Debug the analytics data
+      if (analyticsData.success && analyticsData.data.progressOverTime) {
+        console.log("📊 Progress Over Time Data:", analyticsData.data.progressOverTime);
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       setDashboardData((prev) => ({ ...prev, loading: false }));

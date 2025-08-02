@@ -431,6 +431,118 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
       throw new Error(`Failed to generate task: ${error.message}`);
     }
   }
+
+  async generateGroupTaskStructure(title, description, memberCount, duration) {
+    try {
+      this.initialize();
+
+      const prompt = `
+Generate a structured group task breakdown for the following project:
+
+Title: ${title}
+Description: ${description}
+Team Size: ${memberCount} members
+Duration: ${duration}
+
+Create a JSON response with task sections that can be distributed among team members. Each section should have:
+- title: A clear, specific section title
+- subtasks: An array of 2-4 specific subtasks for that section
+
+Rules:
+1. Create ${Math.min(memberCount + 1, 6)} main sections maximum
+2. Distribute work logically among sections
+3. Each section should be substantial enough for one person
+4. Subtasks should be specific and actionable
+5. Consider dependencies between sections
+
+Return ONLY a valid JSON object in this format:
+{
+  "taskHeaders": [
+    {
+      "title": "Section title here",
+      "subtasks": [
+        {"text": "Specific subtask 1"},
+        {"text": "Specific subtask 2"},
+        {"text": "Specific subtask 3"}
+      ]
+    }
+  ]
+}
+`;
+
+      console.log('Generating group task structure with prompt:', prompt);
+
+      const model = this.ai.getGenerativeModel({ model: "gemini-pro" });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      console.log('Gemini response for group structure:', text);
+
+      // Clean and parse the response
+      let cleanedResponse = text.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanedResponse.startsWith('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(cleanedResponse);
+      } catch (parseError) {
+        console.error('Failed to parse Gemini response:', parseError);
+        console.error('Raw response:', text);
+        
+        // Fallback: create default structure
+        parsedResponse = {
+          taskHeaders: [
+            {
+              title: "Planning & Research",
+              subtasks: [
+                {"text": "Define project requirements"},
+                {"text": "Research best practices"},
+                {"text": "Create project timeline"}
+              ]
+            },
+            {
+              title: "Implementation",
+              subtasks: [
+                {"text": "Set up development environment"},
+                {"text": "Implement core features"},
+                {"text": "Test functionality"}
+              ]
+            }
+          ]
+        };
+      }
+
+      // Validate and clean the structure
+      if (!parsedResponse.taskHeaders || !Array.isArray(parsedResponse.taskHeaders)) {
+        throw new Error('Invalid task structure generated');
+      }
+
+      // Ensure each header has proper structure
+      const validatedHeaders = parsedResponse.taskHeaders.map(header => ({
+        title: header.title || 'Untitled Section',
+        subtasks: Array.isArray(header.subtasks) 
+          ? header.subtasks.map(subtask => ({
+              text: subtask.text || subtask || 'Unnamed subtask'
+            }))
+          : [{ text: 'Define tasks for this section' }]
+      }));
+
+      return {
+        taskHeaders: validatedHeaders
+      };
+      
+    } catch (error) {
+      console.error("Error generating group task structure:", error);
+      throw new Error(`Failed to generate group task structure: ${error.message}`);
+    }
+  }
 }
 
 export default GeminiService;

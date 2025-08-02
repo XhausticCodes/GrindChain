@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TaskChatbot from '../components/tasks/TaskChatbot';
 import TaskList from '../components/tasks/TaskList';
 import ManualTaskForm from '../components/tasks/ManualTaskForm';
+import GroupTaskNotifications from '../components/tasks/GroupTaskNotifications';
 import { SparklesIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const Tasks = () => {
@@ -104,6 +105,9 @@ const Tasks = () => {
           />
         </div>
       </div>
+      
+      {/* Group Task Notifications */}
+      <GroupTaskNotifications />
     </div>
   );
 };

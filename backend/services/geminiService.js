@@ -32,73 +32,104 @@ class GeminiService {
 
   validateTaskDescription(taskDescription) {
     // List of study-related keywords that should be rejected
-    const studyRelatedKeywords = [
-      // Direct study keywords
-      'study', 'studying', 'learn', 'learning', 'teach', 'teaching', 'tutor', 'tutoring',
-      'homework', 'assignment', 'exam', 'test', 'quiz', 'lesson', 'chapter', 'syllabus',
-      'course', 'curriculum', 'education', 'educational', 'academic', 'school', 'college',
-      'university', 'student', 'solve', 'solution', 'answer', 'explain', 'explanation',
+    const strongStudyKeywords = [
+      // Direct homework/academic keywords
+      'homework', 'assignment', 'exam', 'test', 'quiz', 'syllabus',
+      'curriculum', 'academic', 'school', 'college', 'university', 'student',
+      'solve this', 'find the answer', 'help me with', 'explain to me',
+      'i need help', 'can you help', 'i don\'t understand', 'i dont understand',
       
-      // Subject-specific keywords
-      'math', 'mathematics', 'algebra', 'geometry', 'calculus', 'trigonometry', 'physics',
-      'chemistry', 'biology', 'science', 'history', 'geography', 'literature', 'english',
-      'grammar', 'essay', 'research paper', 'thesis', 'dissertation',
-      
-      // Question patterns
-      'what is', 'how to', 'why does', 'explain', 'define', 'meaning of', 'help me with',
-      'i need help', 'can you help', 'solve this', 'find the answer',
+      // Subject-specific study keywords
+      'math problem', 'algebra equation', 'geometry proof', 'calculus derivative',
+      'physics formula', 'chemistry equation', 'biology concept', 'essay writing',
+      'research paper', 'thesis', 'dissertation', 'grammar rules',
       
       // Academic activities
-      'revision', 'review', 'practice', 'exercise', 'problem', 'question', 'formula',
+      'study for', 'revision for', 'practice for', 'prepare for exam'
+    ];
+
+    // Weaker keywords that are only problematic in certain contexts
+    const weakStudyKeywords = [
+      'study', 'learn', 'teach', 'tutor', 'lesson', 'chapter', 'course',
+      'education', 'solve', 'solution', 'answer', 'explain', 'explanation',
+      'review', 'practice', 'exercise', 'problem', 'question', 'formula',
       'theory', 'concept', 'principle', 'rule', 'method', 'technique'
     ];
 
     const taskLower = taskDescription.toLowerCase();
     
-    // Check for direct study keywords
-    const foundKeywords = studyRelatedKeywords.filter(keyword => 
+    // Check for strong study keywords (these are almost always study-related)
+    const foundStrongKeywords = strongStudyKeywords.filter(keyword => 
+      taskLower.includes(keyword.toLowerCase())
+    );
+
+    // Check for weak study keywords
+    const foundWeakKeywords = weakStudyKeywords.filter(keyword => 
       taskLower.includes(keyword.toLowerCase())
     );
 
     // Check for question patterns (? marks, "how", "what", "why" at the beginning)
     const questionPatterns = [
-      /^\s*(what|how|why|when|where|which|who)\s+/i,
-      /\?/,
-      /help\s+me\s+with/i,
-      /explain\s+(to\s+me\s+)?/i,
-      /i\s+(don't|dont)\s+(understand|know)/i
+      /^\s*(what\s+is|how\s+does|why\s+does|when\s+does|where\s+does|which\s+is|who\s+is)\s+/i,
+      /\?\s*$/,  // Question mark at the end
+      /help\s+me\s+(with|understand|solve)/i,
+      /explain\s+(to\s+me\s+)?(what|how|why)/i,
+      /i\s+(don't|dont)\s+(understand|know|get)/i
     ];
 
     const hasQuestionPattern = questionPatterns.some(pattern => pattern.test(taskDescription));
 
-    // Allow task-related keywords even if they contain some study words
+    // Strong task-related keywords that indicate legitimate project work
     const taskRelatedKeywords = [
       'project', 'build', 'create', 'develop', 'implement', 'design', 'make',
       'website', 'app', 'application', 'system', 'platform', 'tool', 'game',
-      'automation', 'script', 'program', 'software', 'algorithm', 'database',
+      'automation', 'script', 'program', 'software', 'database',
       'api', 'interface', 'dashboard', 'portfolio', 'business', 'startup',
-      'plan', 'organize', 'manage', 'schedule', 'complete', 'finish'
+      'plan', 'organize', 'manage', 'schedule', 'complete', 'finish',
+      'deploy', 'launch', 'prototype', 'mvp', 'product', 'service'
     ];
 
     const hasTaskKeywords = taskRelatedKeywords.some(keyword => 
       taskLower.includes(keyword.toLowerCase())
     );
 
-    // If it has task keywords, it's likely a valid task even with some study words
-    if (hasTaskKeywords && foundKeywords.length <= 2) {
-      return { isValid: true };
-    }
-
-    // Reject if too many study keywords or clear question patterns
-    if (foundKeywords.length >= 3 || hasQuestionPattern) {
+    // More permissive logic:
+    // 1. If it has strong study keywords, reject it
+    if (foundStrongKeywords.length > 0) {
       return {
         isValid: false,
-        reason: 'study_query_rejected',
-        foundKeywords: foundKeywords.slice(0, 3), // Show first 3 found keywords
+        reason: 'strong_study_keywords',
+        foundKeywords: foundStrongKeywords.slice(0, 3),
         message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
       };
     }
 
+    // 2. If it has task keywords, allow it even with some weak study words
+    if (hasTaskKeywords) {
+      return { isValid: true };
+    }
+
+    // 3. If it has question patterns AND multiple weak study keywords, reject it
+    if (hasQuestionPattern && foundWeakKeywords.length >= 2) {
+      return {
+        isValid: false,
+        reason: 'question_with_study_keywords',
+        foundKeywords: foundWeakKeywords.slice(0, 3),
+        message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
+      };
+    }
+
+    // 4. If it has many weak study keywords (4+), likely a study query
+    if (foundWeakKeywords.length >= 4) {
+      return {
+        isValid: false,
+        reason: 'multiple_study_keywords',
+        foundKeywords: foundWeakKeywords.slice(0, 3),
+        message: 'This service is limited to task generation only. Study-related queries, homework help, and educational content requests cannot be processed. Please provide a task or project description instead.'
+      };
+    }
+
+    // 5. Allow everything else
     return { isValid: true };
   }
 
@@ -229,6 +260,13 @@ class GeminiService {
 
       // Validate task description to prevent study-related queries
       const validation = this.validateTaskDescription(taskDescription);
+      console.log('🔍 Task validation result:', {
+        taskDescription: taskDescription,
+        isValid: validation.isValid,
+        reason: validation.reason,
+        foundKeywords: validation.foundKeywords
+      });
+      
       if (!validation.isValid) {
         throw new Error(`STUDY_QUERY_REJECTED: ${validation.message}`);
       }
@@ -547,6 +585,13 @@ Return ONLY the JSON object, no markdown formatting or code blocks.
 
       // Validate the description to prevent study-related queries
       const validation = this.validateTaskDescription(description);
+      console.log('🔍 Group task validation result:', {
+        description: description,
+        isValid: validation.isValid,
+        reason: validation.reason,
+        foundKeywords: validation.foundKeywords
+      });
+      
       if (!validation.isValid) {
         throw new Error(`STUDY_QUERY_REJECTED: ${validation.message}`);
       }

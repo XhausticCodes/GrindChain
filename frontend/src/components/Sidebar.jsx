@@ -20,7 +20,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="blur-theme2 w-[240px] bg-slate-900 px-6 py-8 space-y-8 rounded-br-3xl h-full flex flex-col"
+      className="blur-theme2 w-full bg-slate-900 px-6 py-8 space-y-8 rounded-br-3xl h-full flex flex-col"
       style={{ fontFamily: "Harry-Potter, Inter, sans-serif" }}
     >
       <h1 className="text-3xl text-center font-semibold mb-4 tracking-widest text-yellow-500 analytics-glow border-b-1 border-yellow-500 pb-2">

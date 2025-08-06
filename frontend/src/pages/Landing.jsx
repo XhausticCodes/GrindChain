@@ -379,8 +379,8 @@ const Landing = () => {
               <p className="text-white/70">{feature.description}</p>
             </div>
           ))}
+          {/* <div className="absolute bottom-0 left-0 right-0 h-55 bg-gradient-to-t from-black via-black/80 to-transparent"></div> */}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-55 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
       </section>
 
       {/* How It Works Section */}

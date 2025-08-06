@@ -47,7 +47,7 @@ const connectToSockets = (server) => {
           if (!updatedUser) {
             return callback({
               success: false,
-              message: "User not found or not updated",
+              message: "User not found or not updated from updatedUser",
             });
           }
         } catch (err) {
@@ -55,7 +55,7 @@ const connectToSockets = (server) => {
         }
 
         console.log(newGroup._id);
-        return callback({ success: true, groupId: newGroup._id });
+        return callback({ success: true, groupId: newGroup.joinCode });
       } catch (error) {
         console.error("Error creating group:", error);
         return callback({ success: false, message: "Server error" });

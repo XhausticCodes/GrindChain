@@ -42,9 +42,10 @@ const CreatingGroup2 = () => {
       avatar: formData.groupImage,
     };
 
-    socketAPI.emit("createGroup", {groupData, userId: user._id}, (response) => {
+    console.log(user.id, "hello");
+    socketAPI.emit("createGroup", {groupData, userId: user.id}, (response) => {
       if (response.success) {
-        socketAPI.emit("joinGroup", response.groupId, user.username);
+        socketAPI.emit("joinGroup", { groupID: response.groupID, username: user.username });
         alert("Group created successfully!");
         navigate(`/chatroom/${response.groupId}`, { replace: true });
       } else {

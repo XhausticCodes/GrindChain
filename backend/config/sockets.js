@@ -45,37 +45,33 @@ const connectToSockets = (server) => {
       }
 
       try {
-        const newGroup = new Group({
-          name,
-          description,
-          avatar,
-          admin,
-          joinCode: Math.random().toString(36).substring(2, 8),
-        });
-        await newGroup.save();
-
-        // try{
-        //   const currUser = await User.findById(userId);
-        //   if(!currUser) return callback({success: true, message: "what the fuck is going on here"})
-        // } catch (e) {
-        //   return callback({success: false, message: "what the fuck is goin on here +1"});
-        // }
-
-        try {
-          const updatedUser = await User.findOneAndUpdate(
-            { _id: userId },
-            { isAdmin: true, admin: true, currentGroupId: newGroup.joinCode },
-            { new: true }
-          );
-          if (!updatedUser) {
-            return callback({
-              success: false,
-              message: "User not found or not updated from updatedUser",
+        const result = await handleDatabaseOperation(
+          async () => {
+            const newGroup = new Group({
+              name,
+              description,
+              avatar,
+              admin,
+              joinCode: Math.random().toString(36).substring(2, 8),
             });
             await newGroup.save();
 
-        console.log(newGroup._id);
-        return callback({ success: true, groupId: newGroup.joinCode });
+            const updatedUser = await User.findOneAndUpdate(
+              { _id: userId },
+              { isAdmin: true, admin: true, currentGroupId: newGroup.joinCode },
+              { new: true }
+            );
+            
+            if (!updatedUser) {
+              throw new Error("User not found or not updated");
+            }
+
+            return { success: true, groupId: newGroup._id };
+          },
+          { success: false, message: "Database unavailable - group creation failed" }
+        );
+
+        return callback(result);
       } catch (error) {
         console.error("Error creating group:", error);
         return callback({ success: false, message: "Server error" });

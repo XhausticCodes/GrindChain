@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js";
 import geminiRoutes from "./routes/gemini.js";
 import groupRoutes from "./routes/groups.js";
 import { mockApiEndpoints } from './utils/mockData.js';
+import { checkDatabaseConnection, reconnectDatabase } from './utils/database.js';
 
 const PORT = process.env.PORT || 5001;
 const URL = process.env.MONGODB_URI;
@@ -44,21 +45,16 @@ app.use('/api/ai', geminiRoutes);
 app.use('/api/groups', groupRoutes);
 
 app.get('/api/health', (req, res) => {
-  const dbStatus = mongoose.connection.readyState;
-  const dbStatusText = {
-    0: 'disconnected',
-    1: 'connected', 
-    2: 'connecting',
-    3: 'disconnecting'
-  };
-
+  const dbConnection = checkDatabaseConnection();
+  
   res.json({
     success: true,
     message: 'Server is running',
     timestamp: new Date().toISOString(),
     services: {
-      database: dbStatusText[dbStatus] || 'unknown',
-      dbReadyState: dbStatus,
+      database: dbConnection.status,
+      dbReadyState: dbConnection.state,
+      dbConnected: dbConnection.isConnected,
       gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured',
       server: 'running'
     },
@@ -67,6 +63,29 @@ app.get('/api/health', (req, res) => {
       nodeEnv: process.env.NODE_ENV || 'development'
     }
   });
+});
+
+// Database reconnection endpoint
+app.post('/api/reconnect-db', async (req, res) => {
+  try {
+    const success = await reconnectDatabase();
+    const connection = checkDatabaseConnection();
+    
+    res.json({
+      success,
+      message: success ? 'Database reconnected successfully' : 'Failed to reconnect database',
+      connection: {
+        status: connection.status,
+        isConnected: connection.isConnected
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error attempting database reconnection',
+      error: error.message
+    });
+  }
 });
 
 app.get("/", (req, res) => {
@@ -89,14 +108,44 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Enhanced database connection with fallback
+// Enhanced database connection with better error handling and retry logic
 const connectDatabase = async () => {
   try {
     console.log('Attempting to connect to MongoDB Atlas...');
     await mongoose.connect(URL, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+      serverSelectionTimeoutMS: 10000, // Increased timeout to 10 seconds
       socketTimeoutMS: 45000,
+      heartbeatFrequencyMS: 10000,
+      retryWrites: true,
+      retryReads: true,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000,
+      // Remove bufferCommands: false to prevent the error
+      // bufferCommands: false, // Disable mongoose buffering
+      // bufferMaxEntries: 0 // Disable mongoose buffering
     });
+    
+    // Add connection event listeners
+    mongoose.connection.on('connected', () => {
+      console.log('✅ Mongoose connected to MongoDB Atlas');
+    });
+    
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ Mongoose connection error:', err.message);
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.log('⚠️ Mongoose disconnected from MongoDB Atlas');
+    });
+    
+    // Handle process termination
+    process.on('SIGINT', async () => {
+      await mongoose.connection.close();
+      console.log('🔐 Mongoose connection closed due to application termination');
+      process.exit(0);
+    });
+    
     console.log('✅ Connected to MongoDB Atlas successfully');
     return true;
   } catch (err) {
@@ -106,6 +155,7 @@ const connectDatabase = async () => {
     console.log('   1. Add your IP address to MongoDB Atlas whitelist');
     console.log('   2. Check your MONGODB_URI in .env file');
     console.log('   3. Ensure your MongoDB Atlas cluster is running');
+    console.log('   4. Try restarting your internet connection');
     return false;
   }
 };
